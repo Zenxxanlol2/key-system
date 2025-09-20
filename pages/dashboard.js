@@ -12,7 +12,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       <header>
-        <img src="/Syllinse.png" alt="Syllinse Logo" className="logo" />
+        <img src="/syllinse.png" alt="Syllinse Logo" className="logo" />
         <h1>Syllinse Whitelist Dashboard</h1>
       </header>
 
