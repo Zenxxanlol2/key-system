@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     client_secret: process.env.DISCORD_CLIENT_SECRET,
     grant_type: "authorization_code",
     code,
-    redirect_uri: "https://your-vercel-app.vercel.app/api/callback", 
+    redirect_uri: "https://site-4yp5.vercel.app/api/callback", 
     scope: "identify",
   });
 
