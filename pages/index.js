@@ -1,57 +1,30 @@
-import { useEffect, useState } from "react";
-
 export default function Home() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    // Fetch session data from API
-    async function fetchUser() {
-      try {
-        const res = await fetch("/api/session");
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user || null);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user:", err);
-      }
-    }
-    fetchUser();
-  }, []);
+  const clientId = "1418895386797674517";
+  const redirectUri = encodeURIComponent("https://site-4yp5.vercel.app/api/callback");
+  const discordUrl = `https://discord.com/oauth2/authorize?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&scope=identify`;
 
   return (
-    <div className="dashboard">
-      <header>
-        <img src="/syllinse.png" alt="Syllinse Logo" className="logo" />
+    <div style={{ display: "flex", height: "100vh", justifyContent: "center", alignItems: "center", background: "#23272A" }}>
+      <div style={{ textAlign: "center", color: "white" }}>
+        <img src="/syllinse.png" alt="Logo" style={{ width: "120px", marginBottom: "20px" }} />
         <h1>Syllinse Dashboard</h1>
-      </header>
-
-      {!user ? (
-        <div className="login-section">
-          <p>Please log in with Discord to continue</p>
-          <a href="/login">
-            <button className="login-btn">Login with Discord</button>
-          </a>
-        </div>
-      ) : (
-        <div className="user-section">
-          <img
-            src={`https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`}
-            alt="Avatar"
-            className="avatar"
-          />
-          <h2>Welcome, {user.username}#{user.discriminator} 👋</h2>
-          <p>Your Discord ID: {user.id}</p>
-          <button
-            className="logout-btn"
-            onClick={() => {
-              fetch("/api/logout").then(() => window.location.reload());
-            }}
-          >
-            Logout
-          </button>
-        </div>
-      )}
+        <a
+          href={discordUrl}
+          style={{
+            display: "inline-block",
+            padding: "12px 24px",
+            backgroundColor: "#5865F2",
+            color: "white",
+            borderRadius: "8px",
+            textDecoration: "none",
+            fontWeight: "bold",
+            fontSize: "16px",
+            marginTop: "20px",
+          }}
+        >
+          Login with Discord
+        </a>
+      </div>
     </div>
   );
 }
