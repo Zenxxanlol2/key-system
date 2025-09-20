@@ -1,140 +1,203 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Syllinse Dashboard</title>
-    <style>
-      /* Reset */
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syllinse</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-      body {
-        background: linear-gradient(135deg, #23272a, #2c2f33, #23272a);
-        background-size: 400% 400%;
-        animation: gradientBG 12s ease infinite;
-        display: flex;
-        height: 100vh;
-        justify-content: center;
-        align-items: center;
-        font-family: "Segoe UI", Arial, sans-serif;
-        color: #fff;
-      }
+    body {
+      background: #000; /* solid black background */
+      color: #fff;
+      font-family: "Segoe UI", Arial, sans-serif;
+      line-height: 1.6;
+    }
 
-      @keyframes gradientBG {
-        0% {
-          background-position: 0% 50%;
-        }
-        50% {
-          background-position: 100% 50%;
-        }
-        100% {
-          background-position: 0% 50%;
-        }
-      }
+    /* Navbar */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      border-bottom: 1px solid #222;
+      background: #000;
+      position: sticky;
+      top: 0;
+    }
 
-      .container {
-        text-align: center;
-        background: rgba(35, 39, 42, 0.85);
-        padding: 40px;
-        border-radius: 16px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
-        max-width: 400px;
-        width: 90%;
-        backdrop-filter: blur(6px);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-      }
+    nav .logo {
+      display: flex;
+      align-items: center;
+      font-weight: bold;
+      font-size: 20px;
+    }
 
-      .container:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.75);
-      }
+    nav .logo img {
+      width: 30px;
+      margin-right: 10px;
+    }
 
-      img {
-        width: 120px;
-        margin-bottom: 20px;
-        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.2));
-      }
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 30px;
+    }
 
-      h1 {
-        font-size: 26px;
-        margin-bottom: 15px;
-        color: #ffffff;
-        letter-spacing: 1px;
-      }
+    nav ul li a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
 
-      p {
-        font-size: 14px;
-        color: #b9bbbe;
-        margin-bottom: 25px;
-      }
+    nav ul li a:hover {
+      color: #aaa;
+    }
 
-      a {
-        display: inline-block;
-        padding: 12px 28px;
-        background-color: #5865f2;
-        color: white;
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: bold;
-        font-size: 16px;
-        transition: all 0.2s ease;
-      }
+    nav .btn {
+      padding: 10px 20px;
+      background: #fff;
+      color: #000;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
 
-      a:hover {
-        background-color: #4752c4;
-        transform: scale(1.05);
-      }
+    nav .btn:hover {
+      background: #ddd;
+    }
 
-      .options {
-        margin-top: 30px;
-      }
+    /* Hero section */
+    .hero {
+      text-align: center;
+      padding: 100px 20px;
+    }
 
-      .option-btn {
-        display: block;
-        padding: 10px;
-        margin: 10px auto;
-        width: 80%;
-        background: #2f3136;
-        color: #fff;
-        border-radius: 8px;
-        text-decoration: none;
-        transition: background 0.2s;
-      }
+    .hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
 
-      .option-btn:hover {
-        background: #3a3d42;
-      }
+    .hero p {
+      font-size: 18px;
+      color: #bbb;
+      max-width: 600px;
+      margin: 0 auto 40px auto;
+    }
 
-      footer {
-        margin-top: 20px;
-        font-size: 12px;
-        color: #72767d;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <img src="/syllinse.png" alt="Syllinse Logo" />
-      <h1>Syllinse Dashboard</h1>
-      <p>Manage your Syllinse experience with ease.</p>
+    .hero .buttons {
+      margin-top: 20px;
+    }
 
-      <a
-        href="https://discord.com/oauth2/authorize?client_id=1418895386797674517&response_type=code&redirect_uri=https%3A%2F%2Fsite-4yp5.vercel.app%2Fapi%2Fcallback&scope=identify"
-      >
-        Login with Discord
-      </a>
+    .hero .buttons a {
+      display: inline-block;
+      margin: 0 10px;
+      padding: 12px 30px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-decoration: none;
+      transition: 0.2s;
+    }
 
-      <div class="options">
-        <a href="#" class="option-btn">📊 Dashboard</a>
-        <a href="#" class="option-btn">⚙️ Settings</a>
-        <a href="#" class="option-btn">📜 Scripts</a>
-      </div>
+    .hero .btn-primary {
+      background: #fff;
+      color: #000;
+    }
 
-      <footer>© 2025 Syllinse. All rights reserved.</footer>
+    .hero .btn-primary:hover {
+      background: #ddd;
+    }
+
+    .hero .btn-outline {
+      border: 2px solid #fff;
+      color: #fff;
+    }
+
+    .hero .btn-outline:hover {
+      background: #222;
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 60px 20px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat h2 {
+      font-size: 32px;
+      margin-bottom: 5px;
+    }
+
+    .stat p {
+      color: #bbb;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px;
+      color: #555;
+      border-top: 1px solid #222;
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">
+      <img src="/syllinse.png" alt="Logo" />
+      Syllinse
     </div>
-  </body>
+    <ul>
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Features</a></li>
+      <li><a href="#">FAQ</a></li>
+      <li><a href="#">Executors</a></li>
+      <li><a href="#">Download</a></li>
+    </ul>
+    <a href="#" class="btn">Dashboard</a>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>SYLLINSE</h1>
+    <p>
+      Advanced Roblox script for <strong>Steal A Brainrot.</strong><br>
+      Lightning fast. Safe. Community driven.
+    </p>
+    <div class="buttons">
+      <a href="#" class="btn-primary">Get Key Now</a>
+      <a href="#" class="btn-outline">Watch Demo</a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="stat">
+      <h2>43</h2>
+      <p>Active Users</p>
+    </div>
+    <div class="stat">
+      <h2>100+</h2>
+      <p>Premium Features</p>
+    </div>
+    <div class="stat">
+      <h2>99.9%</h2>
+      <p>Uptime</p>
+    </div>
+  </section>
+
+  <footer>© 2025 Syllinse. All rights reserved.</footer>
+</body>
 </html>
