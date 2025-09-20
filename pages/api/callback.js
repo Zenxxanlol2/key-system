@@ -1,65 +1,45 @@
-import fs from "fs";
-import path from "path";
-import fetch from "node-fetch";
-
 export default async function handler(req, res) {
-  const { code } = req.query;
-  if (!code) return res.status(400).json({ error: "No code provided" });
+  const code = req.query.code;
 
-  // Dynamically detect your domain
-  const baseUrl = process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}`
-    : `http://localhost:3000`;
-
-  const params = new URLSearchParams({
-    client_id: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
-    client_secret: process.env.DISCORD_CLIENT_SECRET,
-    grant_type: "authorization_code",
-    code,
-    redirect_uri: `${baseUrl}/api/callback`,
-    scope: "identify"
-  });
-
-  const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
-    method: "POST",
-    body: params,
-    headers: { "Content-Type": "application/x-www-form-urlencoded" }
-  });
-
-  const tokenData = await tokenRes.json();
-  if (!tokenData.access_token) {
-    console.error("Token exchange failed:", tokenData);
-    return res.status(400).json({ error: "Invalid token exchange" });
+  if (!code) {
+    return res.status(400).json({ error: "Missing code" });
   }
 
-  const userRes = await fetch("https://discord.com/api/users/@me", {
-    headers: { Authorization: `Bearer ${tokenData.access_token}` }
-  });
-  const user = await userRes.json();
-
-  // Path to whitelist.json
-  const whitelistPath = path.join(process.cwd(), "whitelist.json");
-  let whitelist = [];
-
-  if (fs.existsSync(whitelistPath)) {
-    whitelist = JSON.parse(fs.readFileSync(whitelistPath));
-  }
-
-  const userAgent = req.headers["user-agent"] || "Unknown Device";
-
-  if (!whitelist.find((entry) => entry.discordId === user.id)) {
-    whitelist.push({
-      discordId: user.id,
-      username: `${user.username}#${user.discriminator}`,
-      device: userAgent,
-      hwid: null
+  try {
+    const data = new URLSearchParams({
+      client_id: process.env.DISCORD_CLIENT_ID,
+      client_secret: process.env.DISCORD_CLIENT_SECRET,
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: "https://site-4yp5.vercel.app/api/callback",
+      scope: "identify"
     });
-    fs.writeFileSync(whitelistPath, JSON.stringify(whitelist, null, 2));
-  }
 
-  res.status(200).send(`
-    <h1>✅ Logged in as ${user.username}#${user.discriminator}</h1>
-    <p>Your Discord ID has been saved.</p>
-    <p>Device: ${userAgent}</p>
-  `);
+    const response = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      body: data,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    });
+
+    const json = await response.json();
+
+    if (json.error) {
+      return res.status(400).json({ error: json.error, details: json });
+    }
+
+    // Fetch user info
+    const userResponse = await fetch("https://discord.com/api/users/@me", {
+      headers: {
+        Authorization: `${json.token_type} ${json.access_token}`
+      }
+    });
+
+    const user = await userResponse.json();
+
+    return res.status(200).json({ user, token: json });
+  } catch (err) {
+    return res.status(500).json({ error: "OAuth2 error", details: err.message });
+  }
 }
