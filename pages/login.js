@@ -4,7 +4,7 @@ export default function Login() {
   useEffect(() => {
     const clientId = process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID;
     const redirectUri = encodeURIComponent(
-      "https://your-vercel-app.vercel.app/api/callback"
+      "site-4yp5.vercel.app"
     );
     const scope = "identify";
 
