@@ -1,38 +1,37 @@
-document.getElementById('keyForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Get form values
-    const product = document.getElementById('product').value;
-    const duration = document.getElementById('duration').value;
-    const hwid = document.getElementById('hwid').value;
-    
-    // Generate a mock key (in a real system, this would call your API)
-    const key = generateMockKey(product, duration, hwid);
-    
-    // Calculate expiry date
-    const expiryDate = new Date();
-    expiryDate.setDate(expiryDate.getDate() + parseInt(duration));
-    
-    // Display the result
-    document.getElementById('keyValue').textContent = key;
-    document.getElementById('expiryDate').textContent = expiryDate.toLocaleDateString();
-    document.getElementById('keyResult').classList.add('active');
-});
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.generator-form');
+    const keyResult = document.getElementById('keyResult');
+    const keyValue = document.getElementById('keyValue');
+    const copyButton = document.getElementById('copyKey');
 
-document.getElementById('copyKey').addEventListener('click', function() {
-    const keyValue = document.getElementById('keyValue').textContent;
-    navigator.clipboard.writeText(keyValue).then(function() {
-        const originalText = this.textContent;
-        this.textContent = 'Copied!';
-        setTimeout(() => {
-            this.textContent = originalText;
-        }, 2000);
-    }.bind(this));
-});
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const product = document.getElementById('product').value;
+        const duration = document.getElementById('duration').value;
+        const hwid = document.getElementById('hwid').value;
+        
+        const key = generateKey(product, duration, hwid);
+        
+        keyValue.textContent = key;
+        keyResult.classList.add('active');
+    });
 
-function generateMockKey(product, duration, hwid) {
-    const prefix = product === 'pro' ? 'SLP' : product === 'enterprise' ? 'SLE' : 'SLU';
-    const randomPart = Math.random().toString(36).substring(2, 10).toUpperCase();
-    const hwidPart = hwid ? hwid.substring(0, 8).toUpperCase() : 'UNRESTRICT';
-    return `${prefix}-${randomPart}-${hwidPart}-${duration}D`;
-}
+    copyButton.addEventListener('click', function() {
+        const key = keyValue.textContent;
+        navigator.clipboard.writeText(key).then(() => {
+            const originalText = copyButton.textContent;
+            copyButton.textContent = 'Copied';
+            setTimeout(() => {
+                copyButton.textContent = originalText;
+            }, 2000);
+        });
+    });
+
+    function generateKey(product, duration, hwid) {
+        const prefix = 'SY';
+        const random = Math.random().toString(36).substr(2, 12).toUpperCase();
+        const hwidPart = hwid ? hwid.substr(0, 6).toUpperCase() : 'UNREST';
+        return `${prefix}-${random}-${hwidPart}-${duration}D`;
+    }
+});
