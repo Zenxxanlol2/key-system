@@ -3,197 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureLock | HWID Key Management System</title>
+    <title>Syllinse | HWID Key System</title>
     <link rel="stylesheet" href="styles/style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">🔒</div>
-                    <h1>SecureLock</h1>
-                </div>
-                <nav>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#api">API</a></li>
-                        <li><a href="#generator">Key Generator</a></li>
-                    </ul>
-                </nav>
-                <div class="auth-buttons">
-                    <a href="#" class="btn btn-outline">Login</a>
-                    <a href="#" class="btn btn-primary">Sign Up</a>
-                </div>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-mark">SY</span>
+                <span class="logo-text">Syllinse</span>
+            </div>
+            <div class="nav-menu">
+                <a href="#system" class="nav-link">System</a>
+                <a href="#api" class="nav-link">API</a>
+                <a href="#generator" class="nav-link">Generator</a>
+                <a href="#docs" class="nav-link">Docs</a>
+            </div>
+            <div class="nav-actions">
+                <button class="btn btn-secondary">Login</button>
+                <button class="btn btn-primary">Dashboard</button>
             </div>
         </div>
-    </header>
+    </nav>
 
     <section class="hero">
         <div class="container">
             <div class="hero-content">
-                <h2>Advanced HWID Key Management System</h2>
-                <p>Secure your software with our robust Hardware ID based licensing system. Protect your applications from unauthorized use with our easy-to-integrate API.</p>
-                <div class="hero-buttons">
-                    <a href="#generator" class="btn btn-primary">Generate Keys</a>
-                    <a href="#api" class="btn btn-outline">View API Docs</a>
+                <h1 class="hero-title">Hardware Locked Licensing</h1>
+                <p class="hero-description">
+                    Secure your software with hardware-bound licenses. Prevent unauthorized distribution with our robust HWID key system.
+                </p>
+                <div class="hero-actions">
+                    <button class="btn btn-large btn-accent">Get Started</button>
+                    <button class="btn btn-large btn-outline">View Documentation</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="features" id="features">
+    <section id="system" class="system-section">
         <div class="container">
-            <div class="section-title">
-                <h2>Powerful Features</h2>
-                <p>Our HWID key system provides everything you need to protect your software</p>
+            <div class="section-header">
+                <h2>Secure Key Management</h2>
+                <p>Advanced protection for your software applications</p>
             </div>
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
-                    <h3>Hardware Locking</h3>
-                    <p>Bind licenses to specific hardware configurations to prevent unauthorized sharing.</p>
+                <div class="feature">
+                    <div class="feature-icon">H</div>
+                    <h3>Hardware Binding</h3>
+                    <p>Licenses are tied to specific hardware configurations, preventing key sharing across devices.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">⚡</div>
-                    <h3>Fast Integration</h3>
-                    <p>Easy-to-use API with comprehensive documentation for quick implementation.</p>
+                <div class="feature">
+                    <div class="feature-icon">A</div>
+                    <h3>API Integration</h3>
+                    <p>RESTful API for seamless integration with your applications and management systems.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Usage Analytics</h3>
-                    <p>Track key usage, activations, and monitor potential abuse in real-time.</p>
+                <div class="feature">
+                    <div class="feature-icon">M</div>
+                    <h3>Key Management</h3>
+                    <p>Create, revoke, and monitor keys through our comprehensive dashboard.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔄</div>
-                    <h3>Dynamic Key Management</h3>
-                    <p>Create, revoke, or extend keys on-the-fly with our management dashboard.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
-                    <h3>Global CDN</h3>
-                    <p>Low-latency global infrastructure ensures fast key validation worldwide.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔒</div>
-                    <h3>Military-Grade Security</h3>
-                    <p>End-to-end encryption and secure protocols to protect your keys and data.</p>
+                <div class="feature">
+                    <div class="feature-icon">S</div>
+                    <h3>Security First</h3>
+                    <p>Military-grade encryption and secure protocols protect your licensing system.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="api-section" id="api">
+    <section id="api" class="api-section">
         <div class="container">
-            <div class="section-title">
-                <h2>Simple API Integration</h2>
-                <p>Integrate our HWID key system into your application with our straightforward API</p>
+            <div class="section-header">
+                <h2>API Endpoints</h2>
+                <p>Integrate with clean, well-documented REST API</p>
             </div>
-            <div class="api-container">
-                <p>Our RESTful API allows you to easily manage keys, validate licenses, and track usage. All responses are in JSON format and use standard HTTP status codes.</p>
-                
-                <div class="api-endpoints">
-                    <div class="endpoint-card">
-                        <span class="endpoint-method method-post">POST</span>
-                        <h3>/api/key/create</h3>
-                        <p>Create a new HWID key with customizable parameters.</p>
+            <div class="api-grid">
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <code class="endpoint-path">/v1/keys/create</code>
                     </div>
-                    <div class="endpoint-card">
-                        <span class="endpoint-method method-get">GET</span>
-                        <h3>/api/key/validate</h3>
-                        <p>Validate a key against a specific hardware ID.</p>
+                    <p class="endpoint-description">Generate new HWID-bound license keys</p>
+                </div>
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <code class="endpoint-path">/v1/keys/validate</code>
                     </div>
-                    <div class="endpoint-card">
-                        <span class="endpoint-method method-get">GET</span>
-                        <h3>/api/key/info</h3>
-                        <p>Retrieve information about a specific key.</p>
+                    <p class="endpoint-description">Validate key against hardware identifier</p>
+                </div>
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <code class="endpoint-path">/v1/keys/info</code>
                     </div>
-                    <div class="endpoint-card">
-                        <span class="endpoint-method method-delete">DELETE</span>
-                        <h3>/api/key/revoke</h3>
-                        <p>Revoke a key to prevent further usage.</p>
+                    <p class="endpoint-description">Retrieve key information and status</p>
+                </div>
+                <div class="api-endpoint">
+                    <div class="endpoint-header">
+                        <span class="method delete">DELETE</span>
+                        <code class="endpoint-path">/v1/keys/revoke</code>
                     </div>
+                    <p class="endpoint-description">Revoke active license keys</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="key-generator" id="generator">
+    <section id="generator" class="generator-section">
         <div class="container">
-            <div class="section-title">
-                <h2>Key Generator</h2>
-                <p>Create HWID keys for your application with our easy-to-use generator</p>
-            </div>
             <div class="generator-container">
-                <form id="keyForm">
+                <div class="generator-header">
+                    <h2>Key Generator</h2>
+                    <p>Create HWID-bound license keys</p>
+                </div>
+                <form class="generator-form">
                     <div class="form-group">
                         <label for="product">Product</label>
-                        <select id="product" class="form-control" required>
-                            <option value="">Select a product</option>
-                            <option value="pro">SecureLock Pro</option>
-                            <option value="enterprise">SecureLock Enterprise</option>
-                            <option value="ultimate">SecureLock Ultimate</option>
+                        <select id="product" class="form-input">
+                            <option value="standard">Standard License</option>
+                            <option value="premium">Premium License</option>
+                            <option value="enterprise">Enterprise License</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="duration">Duration (days)</label>
-                        <input type="number" id="duration" class="form-control" min="1" max="365" value="30" required>
+                        <input type="number" id="duration" class="form-input" value="30" min="1" max="365">
                     </div>
                     <div class="form-group">
-                        <label for="hwid">Hardware ID (Optional)</label>
-                        <input type="text" id="hwid" class="form-control" placeholder="Leave empty to generate unrestricted key">
+                        <label for="hwid">Hardware ID</label>
+                        <input type="text" id="hwid" class="form-input" placeholder="Optional - leave blank for unrestricted">
                     </div>
-                    <div class="form-group">
-                        <label for="notes">Notes (Optional)</label>
-                        <textarea id="notes" class="form-control" rows="3" placeholder="Add any notes about this key"></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">Generate Key</button>
+                    <button type="submit" class="btn btn-accent btn-full">Generate Key</button>
                 </form>
-                
                 <div class="key-result" id="keyResult">
-                    <h3>Your Generated Key</h3>
-                    <div class="key-value" id="keyValue">SL-XXXX-XXXX-XXXX-XXXX</div>
-                    <p>This key will expire on: <strong id="expiryDate">N/A</strong></p>
-                    <button class="btn btn-outline" id="copyKey" style="margin-top: 1rem;">Copy Key</button>
+                    <div class="key-display">
+                        <label>Generated Key</label>
+                        <div class="key-value" id="keyValue">SY-XXXXXXXX-XXXXXXXX</div>
+                    </div>
+                    <div class="key-actions">
+                        <button class="btn btn-outline" id="copyKey">Copy</button>
+                        <button class="btn btn-secondary">Download</button>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <footer>
+    <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-column">
-                    <h3>SecureLock</h3>
-                    <p>The most advanced HWID key management system for protecting your software applications.</p>
+                <div class="footer-brand">
+                    <div class="nav-logo">
+                        <span class="logo-mark">SY</span>
+                        <span class="logo-text">Syllinse</span>
+                    </div>
+                    <p>Advanced software protection systems</p>
                 </div>
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul>
-                        <li><a href="#features">Features</a></li>
-                        <li><a href="#api">API Documentation</a></li>
-                        <li><a href="#generator">Key Generator</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="#">API Reference</a></li>
-                        <li><a href="#">Support Center</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Company</h3>
-                    <ul>
-                        <li><a href="#">About Us</a></li>
-                        <li><a href="#">Contact</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                    </ul>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Product</h4>
+                        <a href="#system">Features</a>
+                        <a href="#api">API</a>
+                        <a href="#pricing">Pricing</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Resources</h4>
+                        <a href="#docs">Documentation</a>
+                        <a href="#support">Support</a>
+                        <a href="#status">Status</a>
+                    </div>
+                    <div class="link-group">
+                        <h4>Company</h4>
+                        <a href="#about">About</a>
+                        <a href="#contact">Contact</a>
+                        <a href="#terms">Terms</a>
+                    </div>
                 </div>
             </div>
-            <div class="copyright">
-                <p>&copy; 2023 SecureLock HWID Key System. All rights reserved.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Syllinse. All rights reserved.</p>
             </div>
         </div>
     </footer>
