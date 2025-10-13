@@ -1313,7 +1313,15 @@ local TargetInfo = {
                 return
             end
 
-            local rootPart = character.HumanoidRootPart
+            local rootPart = character:FindFirstChild('HumanoidRootPart')
+            local head = character:FindFirstChild('Head')
+            if not (rootPart and head) then
+                return
+            end
+
+            local headPos, headOnScreen = camera:WorldToViewportPoint(
+                head.Position + Vector3.new(0, head.Size.Y / 2 + 0.5, 0)
+            )
             local lowestPoint = rootPart.Position.Y - 4
             for _, part in pairs(character:GetChildren()) do
                 if part:IsA('BasePart') then
@@ -1323,21 +1331,22 @@ local TargetInfo = {
                     end
                 end
             end
-
-            local feetWorldPos = Vector3.new(
-                rootPart.Position.X,
-                lowestPoint,
-                rootPart.Position.Z
+            local feetPos, feetOnScreen = camera:WorldToViewportPoint(
+                Vector3.new(
+                    rootPart.Position.X,
+                    lowestPoint,
+                    rootPart.Position.Z
+                )
             )
-            local screenPoint, onScreen =
-                camera:WorldToScreenPoint(feetWorldPos - Vector3.new(0, 1.5, 0))
-
-            if not onScreen then
+            if not (headOnScreen and feetOnScreen) then
                 if TargetInventoryV2.State.PlayerFrames[player] then
                     TargetInventoryV2.State.PlayerFrames[player].Visible = false
                 end
                 return
             end
+
+            -- Base inventory placement directly under ESP box
+            local inventoryY = feetPos.Y + 20
 
             local equippedItem = TargetInventoryV2.Settings.ShowEquipped.Value
                 and getV2PlayerEquippedItem(player)
@@ -1378,8 +1387,7 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = playerFrame
             end
 
-            playerFrame.Position =
-                UDim2.new(0, screenPoint.X, 0, screenPoint.Y + 10)
+            playerFrame.Position = UDim2.new(0, headPos.X, 0, inventoryY)
 
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
@@ -1514,7 +1522,6 @@ local TargetInfo = {
                     0,
                     itemHeight
                 )
-
                 maxItemHeight = math.max(maxItemHeight, itemHeight)
                 currentX = currentX
                     + itemContainer.Size.X.Offset
