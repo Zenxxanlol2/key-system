@@ -1313,11 +1313,15 @@ local TargetInfo = {
                 return
             end
 
-            -- Convert world position to screen position
+            -- Convert world position to screen position at the feet
             local rootPart = character.HumanoidRootPart
             local rootPosition = rootPart.Position
+
+            -- Calculate position at feet (subtract character height/2)
+            local feetPosition = rootPosition
+                - Vector3.new(0, character:GetExtentsSize().Y / 2, 0)
             local screenPoint, onScreen =
-                camera:WorldToScreenPoint(rootPosition)
+                camera:WorldToScreenPoint(feetPosition)
 
             if not onScreen then
                 if TargetInventoryV2.State.PlayerFrames[player] then
@@ -1385,9 +1389,13 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = playerFrame
             end
 
-            -- Set the frame position to the player's feet with offset for better positioning
-            playerFrame.Position =
-                UDim2.new(0, screenPoint.X, 0, screenPoint.Y + 20)
+            -- Set the frame position BELOW the player's feet with vertical offset
+            playerFrame.Position = UDim2.new(
+                0,
+                screenPoint.X,
+                0,
+                screenPoint.Y + TargetInventoryV2.Settings.VerticalOffset.Value
+            )
 
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
@@ -1538,47 +1546,17 @@ local TargetInfo = {
             mainContainer.Size =
                 UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 8)
 
-            -- Add player name and distance at the bottom
-            local infoContainer = Instance.new('Frame')
-            infoContainer.BackgroundTransparency = 1
-            infoContainer.Size = UDim2.new(0, totalWidth + padding, 0, 20)
-            infoContainer.Position = UDim2.new(0.5, 0, 0, maxItemHeight + 12)
-            infoContainer.Parent = playerFrame
-
-            local playerNameLabel = Instance.new('TextLabel')
-            playerNameLabel.Size = UDim2.new(0.5, 0, 1, 0)
-            playerNameLabel.Position = UDim2.new(0, 0, 0, 0)
-            playerNameLabel.BackgroundTransparency = 1
-            playerNameLabel.Text = player.Name
-            playerNameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
-            playerNameLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
-                - 1
-            playerNameLabel.Font = Enum.Font.GothamBold
-            playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
-            playerNameLabel.TextYAlignment = Enum.TextYAlignment.Center
-            playerNameLabel.Parent = infoContainer
-
-            if TargetInventoryV2.Settings.ShowDistance.Value then
-                local distanceLabel = Instance.new('TextLabel')
-                distanceLabel.Size = UDim2.new(0.5, 0, 1, 0)
-                distanceLabel.Position = UDim2.new(0.5, 0, 0, 0)
-                distanceLabel.BackgroundTransparency = 1
-                distanceLabel.Text =
-                    string.format('%d studs', math.floor(distance))
-                distanceLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
-                distanceLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
-                    - 2
-                distanceLabel.Font = Enum.Font.Gotham
-                distanceLabel.TextXAlignment = Enum.TextXAlignment.Right
-                distanceLabel.TextYAlignment = Enum.TextYAlignment.Center
-                distanceLabel.Parent = infoContainer
-            end
+            -- REMOVED: Player name and distance at the bottom (removed the studs distance label)
+            -- Only show player name if needed, but removed distance display
 
             playerFrame.Size =
-                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 32)
+                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 8) -- Reduced size since we removed the info container
 
             playerFrame.Visible = true
         end
+
+
+        TargetInventoryV2.State.UpdateInterval = 0.05 
 
         local function updateAllV2Frames()
             if not TargetInventoryV2.Settings.Enabled.Value then
