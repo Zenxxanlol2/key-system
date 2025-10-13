@@ -427,15 +427,11 @@ local TargetInfo = {
                 Enum.EasingStyle.Quad,
                 Enum.EasingDirection.Out
             )
-            TweenService:Create(
-                orb,
-                tweenInfo,
-                {
-                    Size = UDim2.new(0, 0, 0, 0),
-                    Position = targetPosition,
-                    BackgroundTransparency = 1,
-                }
-            ):Play()
+            TweenService:Create(orb, tweenInfo, {
+                Size = UDim2.new(0, 0, 0, 0),
+                Position = targetPosition,
+                BackgroundTransparency = 1,
+            }):Play()
             task.delay(TargetHud.Settings.OrbFadeDuration.Value, function()
                 orb:Destroy()
             end)
@@ -774,14 +770,11 @@ local TargetInfo = {
                     local itemName = meshId and getItemNameByMeshID(meshId)
                         or item.Name
                     if itemName then
-                        table.insert(
-                            items,
-                            {
-                                Name = itemName,
-                                Icon = getItemIcon(itemName),
-                                Rarity = rarityName,
-                            }
-                        )
+                        table.insert(items, {
+                            Name = itemName,
+                            Icon = getItemIcon(itemName),
+                            Rarity = rarityName,
+                        })
                     end
                 end
             end
@@ -911,17 +904,10 @@ local TargetInfo = {
                 Enum.EasingStyle.Quad,
                 Enum.EasingDirection.Out
             )
-            TweenService
-                :Create(
-                    invFrame,
-                    tweenInfo,
-                    {
-                        Size = UDim2.new(0, 220, 0, 160),
-                        BackgroundTransparency = 0.3,
-                    }
-                )
-                :Play(
-)
+            TweenService:Create(invFrame, tweenInfo, {
+                Size = UDim2.new(0, 220, 0, 160),
+                BackgroundTransparency = 0.3,
+            }):Play()
             task.delay(0.5, function()
                 for _, child in pairs(invFrame:GetDescendants()) do
                     if
@@ -1327,7 +1313,7 @@ local TargetInfo = {
                 return
             end
 
-            -- Convert world position to screen position (CRITICAL FIX)
+            -- Convert world position to screen position
             local rootPart = character.HumanoidRootPart
             local rootPosition = rootPart.Position
             local screenPoint, onScreen =
@@ -1399,8 +1385,9 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = playerFrame
             end
 
-            -- Set the frame position to the player's feet (CRITICAL FIX)
-            playerFrame.Position = UDim2.new(0, screenPoint.X, 0, screenPoint.Y)
+            -- Set the frame position to the player's feet with offset for better positioning
+            playerFrame.Position =
+                UDim2.new(0, screenPoint.X, 0, screenPoint.Y + 20)
 
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
@@ -1411,9 +1398,28 @@ local TargetInfo = {
                 return
             end
 
+            -- Create a main container with better styling
+            local mainContainer = Instance.new('Frame')
+            mainContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+            mainContainer.BackgroundTransparency = 0.2
+            mainContainer.BorderSizePixel = 0
+            mainContainer.Size = UDim2.new(0, 0, 0, 0)
+            mainContainer.Position = UDim2.new(0.5, 0, 0, 0)
+            mainContainer.Parent = playerFrame
+
+            local containerCorner = Instance.new('UICorner')
+            containerCorner.CornerRadius = UDim.new(0, 6)
+            containerCorner.Parent = mainContainer
+
+            local containerStroke = Instance.new('UIStroke')
+            containerStroke.Color = Color3.fromRGB(60, 60, 80)
+            containerStroke.Thickness = 1
+            containerStroke.Parent = mainContainer
+
             -- Calculate total width for centering
             local totalWidth = 0
-            local maxHeight = TargetInventoryV2.Settings.IconSize.Value
+            local itemHeight = TargetInventoryV2.Settings.IconSize.Value + 8
+            local padding = 8
 
             for _, item in ipairs(allItems) do
                 local textSize = game:GetService('TextService'):GetTextSize(
@@ -1424,25 +1430,38 @@ local TargetInfo = {
                 )
                 totalWidth = totalWidth
                     + TargetInventoryV2.Settings.IconSize.Value
-                    + TargetInventoryV2.Settings.HorizontalSpacing.Value
+                    + padding
                     + textSize.X
-                    + TargetInventoryV2.Settings.HorizontalSpacing.Value
+                    + padding
             end
 
             -- Position items with auto-alignment
             local currentX = -totalWidth / 2
+            local maxItemHeight = 0
 
             for _, item in ipairs(allItems) do
                 local itemContainer = Instance.new('Frame')
                 itemContainer.BackgroundTransparency = 1
-                itemContainer.Size = UDim2.new(0, 0, 0, maxHeight)
-                itemContainer.Position = UDim2.new(
-                    0.5,
-                    currentX,
-                    1,
-                    TargetInventoryV2.Settings.VerticalOffset.Value
+                itemContainer.Size = UDim2.new(0, 0, 0, itemHeight)
+                itemContainer.Position = UDim2.new(0.5, currentX, 0, 4)
+                itemContainer.Parent = mainContainer
+
+                -- Create icon with background
+                local iconBackground = Instance.new('Frame')
+                iconBackground.Size = UDim2.new(
+                    0,
+                    TargetInventoryV2.Settings.IconSize.Value + 4,
+                    0,
+                    TargetInventoryV2.Settings.IconSize.Value + 4
                 )
-                itemContainer.Parent = playerFrame
+                iconBackground.Position = UDim2.new(0, 0, 0, 2)
+                iconBackground.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+                iconBackground.BorderSizePixel = 0
+                iconBackground.Parent = itemContainer
+
+                local iconBgCorner = Instance.new('UICorner')
+                iconBgCorner.CornerRadius = UDim.new(0, 4)
+                iconBgCorner.Parent = iconBackground
 
                 local icon = Instance.new('ImageLabel')
                 icon.Size = UDim2.new(
@@ -1451,38 +1470,43 @@ local TargetInfo = {
                     0,
                     TargetInventoryV2.Settings.IconSize.Value
                 )
-                icon.Position = UDim2.new(0, 0, 0, 0)
+                icon.Position = UDim2.new(0, 2, 0, 2)
                 icon.BackgroundTransparency = 1
                 icon.Image = item.Icon
                 icon.ImageColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
                         and getRarityColor(item.Rarity)
                     or Color3.fromRGB(255, 255, 255)
-                icon.Parent = itemContainer
+                icon.Parent = iconBackground
 
+                -- Add equipped indicator as a border instead of dot
+                if item.IsEquipped then
+                    local equippedBorder = Instance.new('UIStroke')
+                    equippedBorder.Color = Color3.fromRGB(0, 255, 0)
+                    equippedBorder.Thickness = 2
+                    equippedBorder.Parent = iconBackground
+                end
+
+                -- Create text label with better styling
                 local textLabel = Instance.new('TextLabel')
                 textLabel.Size = UDim2.new(
                     0,
                     0,
                     0,
-                    TargetInventoryV2.Settings.TextSize.Value
+                    TargetInventoryV2.Settings.TextSize.Value + 4
                 )
                 textLabel.Position = UDim2.new(
                     0,
-                    TargetInventoryV2.Settings.IconSize.Value
-                        + TargetInventoryV2.Settings.HorizontalSpacing.Value,
+                    TargetInventoryV2.Settings.IconSize.Value + 8,
                     0,
-                    (
-                        TargetInventoryV2.Settings.IconSize.Value
-                        - TargetInventoryV2.Settings.TextSize.Value
-                    ) / 2
+                    (itemHeight - TargetInventoryV2.Settings.TextSize.Value) / 2
                 )
                 textLabel.BackgroundTransparency = 1
                 textLabel.Text = item.Name
                 textLabel.TextColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
                         and getRarityColor(item.Rarity)
-                    or Color3.fromRGB(255, 255, 255)
+                    or Color3.fromRGB(220, 220, 220)
                 textLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
-                textLabel.Font = Enum.Font.Gotham
+                textLabel.Font = Enum.Font.GothamMedium
                 textLabel.TextXAlignment = Enum.TextXAlignment.Left
                 textLabel.TextYAlignment = Enum.TextYAlignment.Center
                 textLabel.Parent = itemContainer
@@ -1497,81 +1521,61 @@ local TargetInfo = {
                 itemContainer.Size = UDim2.new(
                     0,
                     TargetInventoryV2.Settings.IconSize.Value
-                        + TargetInventoryV2.Settings.HorizontalSpacing.Value
-                        + textSize.X,
+                        + padding
+                        + textSize.X
+                        + padding,
                     0,
-                    maxHeight
+                    itemHeight
                 )
-
-                if item.IsEquipped then
-                    local equippedBadge = Instance.new('Frame')
-                    equippedBadge.Size = UDim2.new(0, 6, 0, 6)
-                    equippedBadge.Position = UDim2.new(1, -3, 0, -3)
-                    equippedBadge.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
-                    equippedBadge.BorderSizePixel = 0
-                    equippedBadge.Parent = icon
-
-                    local badgeCorner = Instance.new('UICorner')
-                    badgeCorner.CornerRadius = UDim.new(1, 0)
-                    badgeCorner.Parent = equippedBadge
-                end
+                maxItemHeight = math.max(maxItemHeight, itemHeight)
 
                 currentX = currentX
                     + itemContainer.Size.X.Offset
                     + TargetInventoryV2.Settings.HorizontalSpacing.Value
             end
 
-            playerFrame.Size = UDim2.new(
-                0,
-                totalWidth,
-                0,
-                maxHeight + TargetInventoryV2.Settings.VerticalOffset.Value + 20
-            )
+            -- Set main container size
+            mainContainer.Size =
+                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 8)
+
+            -- Add player name and distance at the bottom
+            local infoContainer = Instance.new('Frame')
+            infoContainer.BackgroundTransparency = 1
+            infoContainer.Size = UDim2.new(0, totalWidth + padding, 0, 20)
+            infoContainer.Position = UDim2.new(0.5, 0, 0, maxItemHeight + 12)
+            infoContainer.Parent = playerFrame
+
+            local playerNameLabel = Instance.new('TextLabel')
+            playerNameLabel.Size = UDim2.new(0.5, 0, 1, 0)
+            playerNameLabel.Position = UDim2.new(0, 0, 0, 0)
+            playerNameLabel.BackgroundTransparency = 1
+            playerNameLabel.Text = player.Name
+            playerNameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+            playerNameLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
+                - 1
+            playerNameLabel.Font = Enum.Font.GothamBold
+            playerNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+            playerNameLabel.TextYAlignment = Enum.TextYAlignment.Center
+            playerNameLabel.Parent = infoContainer
 
             if TargetInventoryV2.Settings.ShowDistance.Value then
                 local distanceLabel = Instance.new('TextLabel')
-                distanceLabel.Size = UDim2.new(
-                    0,
-                    0,
-                    0,
-                    TargetInventoryV2.Settings.TextSize.Value
-                )
-                distanceLabel.Position = UDim2.new(
-                    0.5,
-                    0,
-                    1,
-                    TargetInventoryV2.Settings.VerticalOffset.Value
-                        + maxHeight
-                        + 5
-                )
+                distanceLabel.Size = UDim2.new(0.5, 0, 1, 0)
+                distanceLabel.Position = UDim2.new(0.5, 0, 0, 0)
                 distanceLabel.BackgroundTransparency = 1
                 distanceLabel.Text =
-                    string.format('[%d studs]', math.floor(distance))
-                distanceLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                    string.format('%d studs', math.floor(distance))
+                distanceLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
                 distanceLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
                     - 2
                 distanceLabel.Font = Enum.Font.Gotham
-                distanceLabel.TextXAlignment = Enum.TextXAlignment.Center
-                distanceLabel.Parent = playerFrame
-
-                local distanceTextSize = game:GetService('TextService')
-                    :GetTextSize(
-                        distanceLabel.Text,
-                        distanceLabel.TextSize,
-                        Enum.Font.Gotham,
-                        Vector2.new(1000, 1000)
-                    )
-                distanceLabel.Size =
-                    UDim2.new(0, distanceTextSize.X, 0, distanceTextSize.Y)
-                distanceLabel.Position = UDim2.new(
-                    0.5,
-                    -distanceTextSize.X / 2,
-                    1,
-                    TargetInventoryV2.Settings.VerticalOffset.Value
-                        + maxHeight
-                        + 5
-                )
+                distanceLabel.TextXAlignment = Enum.TextXAlignment.Right
+                distanceLabel.TextYAlignment = Enum.TextYAlignment.Center
+                distanceLabel.Parent = infoContainer
             end
+
+            playerFrame.Size =
+                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 32)
 
             playerFrame.Visible = true
         end
