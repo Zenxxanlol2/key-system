@@ -1316,63 +1316,18 @@ local TargetInfo = {
             local rootPart = character.HumanoidRootPart
             local rootPosition = rootPart.Position
 
-            -- Calculate position relative to camera viewport
-            local camera = Workspace.CurrentCamera
-            local viewportSize = camera.ViewportSize
+            -- Simple WorldToScreenPoint for positioning
+            local screenPoint, onScreen =
+                camera:WorldToScreenPoint(rootPosition)
 
-            -- Get the direction from camera to player
-            local cameraPosition = camera.CFrame.Position
-            local direction = (rootPosition - cameraPosition).Unit
-
-            -- Project onto screen space (simpler approach)
-            local screenCenter =
-                Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
-
-            -- Calculate screen position based on camera look vector
-            local lookVector = camera.CFrame.LookVector
-            local rightVector = camera.CFrame.RightVector
-            local upVector = camera.CFrame.UpVector
-
-            local offsetFromCamera = rootPosition - cameraPosition
-            local x = offsetFromCamera:Dot(rightVector)
-            local y = offsetFromCamera:Dot(upVector)
-            local z = offsetFromCamera:Dot(lookVector)
-
-            -- Only show if player is in front of camera
-            if z <= 0 then
+            if not onScreen then
                 if TargetInventoryV2.State.PlayerFrames[player] then
                     TargetInventoryV2.State.PlayerFrames[player].Visible = false
                 end
                 return
             end
 
-            -- Convert to screen coordinates
-            local fov = math.rad(70) -- Default field of view
-            local screenX = screenCenter.X
-                + (x / z) * (screenCenter.X / math.tan(fov / 2))
-            local screenY = screenCenter.Y
-                - (y / z) * (screenCenter.Y / math.tan(fov / 2))
-
-            -- Calculate distance
-            local localPlayer = Players.LocalPlayer
-            local localCharacter = localPlayer.Character
-            local distance = 0
-            if
-                localCharacter
-                and localCharacter:FindFirstChild('HumanoidRootPart')
-            then
-                distance = (
-                    localCharacter.HumanoidRootPart.Position - rootPosition
-                ).Magnitude
-            end
-
-            if distance > TargetInventoryV2.Settings.FadeDistance.Value then
-                if TargetInventoryV2.State.PlayerFrames[player] then
-                    TargetInventoryV2.State.PlayerFrames[player].Visible = false
-                end
-                return
-            end
-
+            -- REMOVED distance check - applies to ALL players regardless of distance
             local equippedItem = TargetInventoryV2.Settings.ShowEquipped.Value
                 and getV2PlayerEquippedItem(player)
             local inventoryItems = TargetInventoryV2.Settings.ShowInventory.Value
@@ -1412,8 +1367,9 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = playerFrame
             end
 
-            -- Set the frame position BELOW the player (centered horizontally)
-            playerFrame.Position = UDim2.new(0, screenX, 0, screenY + 50)
+            -- Set the frame position 4 studs below player feet
+            playerFrame.Position =
+                UDim2.new(0, screenPoint.X, 0, screenPoint.Y + 4)
 
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
