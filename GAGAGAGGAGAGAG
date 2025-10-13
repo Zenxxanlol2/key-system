@@ -1317,11 +1317,9 @@ local TargetInfo = {
             local rootPart = character.HumanoidRootPart
             local rootPosition = rootPart.Position
 
-            -- Calculate position at feet (subtract character height/2)
-            local feetPosition = rootPosition
-                - Vector3.new(0, character:GetExtentsSize().Y / 2, 0)
+            -- Get screen position of the player's feet
             local screenPoint, onScreen =
-                camera:WorldToScreenPoint(feetPosition)
+                camera:WorldToScreenPoint(rootPosition)
 
             if not onScreen then
                 if TargetInventoryV2.State.PlayerFrames[player] then
@@ -1389,13 +1387,9 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = playerFrame
             end
 
-            -- Set the frame position BELOW the player's feet with vertical offset
-            playerFrame.Position = UDim2.new(
-                0,
-                screenPoint.X,
-                0,
-                screenPoint.Y + TargetInventoryV2.Settings.VerticalOffset.Value
-            )
+            -- Set the frame position BELOW the player's feet (centered)
+            playerFrame.Position =
+                UDim2.new(0, screenPoint.X, 0, screenPoint.Y + 50)
 
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
@@ -1443,7 +1437,7 @@ local TargetInfo = {
                     + padding
             end
 
-            -- Position items with auto-alignment
+            -- Position items horizontally (BELOW player, not to the left)
             local currentX = -totalWidth / 2
             local maxItemHeight = 0
 
@@ -1546,18 +1540,32 @@ local TargetInfo = {
             mainContainer.Size =
                 UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 8)
 
-            -- REMOVED: Player name and distance at the bottom (removed the studs distance label)
-            -- Only show player name if needed, but removed distance display
+            -- ADDED BACK: Player name at the bottom (centered)
+            local infoContainer = Instance.new('Frame')
+            infoContainer.BackgroundTransparency = 1
+            infoContainer.Size = UDim2.new(0, totalWidth + padding, 0, 20)
+            infoContainer.Position = UDim2.new(0.5, 0, 0, maxItemHeight + 12)
+            infoContainer.Parent = playerFrame
+
+            local playerNameLabel = Instance.new('TextLabel')
+            playerNameLabel.Size = UDim2.new(1, 0, 1, 0)
+            playerNameLabel.Position = UDim2.new(0, 0, 0, 0)
+            playerNameLabel.BackgroundTransparency = 1
+            playerNameLabel.Text = player.Name
+            playerNameLabel.TextColor3 = Color3.fromRGB(220, 220, 220)
+            playerNameLabel.TextSize = TargetInventoryV2.Settings.TextSize.Value
+                - 1
+            playerNameLabel.Font = Enum.Font.GothamBold
+            playerNameLabel.TextXAlignment = Enum.TextXAlignment.Center
+            playerNameLabel.TextYAlignment = Enum.TextYAlignment.Center
+            playerNameLabel.Parent = infoContainer
 
             playerFrame.Size =
-                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 8) -- Reduced size since we removed the info container
-
+                UDim2.new(0, totalWidth + padding, 0, maxItemHeight + 32)
             playerFrame.Visible = true
         end
 
-
-        TargetInventoryV2.State.UpdateInterval = 0.05 
-
+        -- Also update the update system to ensure it applies to ALL players
         local function updateAllV2Frames()
             if not TargetInventoryV2.Settings.Enabled.Value then
                 for player, frame in pairs(TargetInventoryV2.State.PlayerFrames) do
@@ -1573,6 +1581,9 @@ local TargetInfo = {
                 end
             end
         end
+
+        -- Make updates smoother and more frequent
+        TargetInventoryV2.State.UpdateInterval = 0.05 -- Reduced for smoother updates
 
         local function updateV2System()
             if not TargetInventoryV2.Settings.Enabled.Value then
