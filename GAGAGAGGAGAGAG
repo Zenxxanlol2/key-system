@@ -1295,6 +1295,14 @@ local TargetInfo = {
             return items
         end
 
+        local function hashInventory(items)
+            local concat = ''
+            for _, item in ipairs(items) do
+                concat ..= (item.Name or '') .. (item.Rarity or '') .. (item.Icon or '')
+            end
+            return tostring(#concat) .. tostring(#items)
+        end
+
         local function updateV2PlayerFrame(player)
             if not TargetInventoryV2.Settings.Enabled.Value then
                 return
@@ -1385,7 +1393,6 @@ local TargetInfo = {
             end
             lastInventoryHash[player] = invHash
 
-            -- rebuild GUI (your original design kept 100%)
             for _, child in pairs(playerFrame:GetChildren()) do
                 child:Destroy()
             end
