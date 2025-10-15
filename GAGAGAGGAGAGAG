@@ -339,6 +339,14 @@ local TargetInfo = {
         fovCircleCorner.CornerRadius = UDim.new(1, 0)
         fovCircleCorner.Parent = fovCircle
 
+        local v2ScreenGui = Instance.new('ScreenGui')
+        v2ScreenGui.Name = 'TargetInventoryV2Gui'
+        v2ScreenGui.ResetOnSpawn = false
+        v2ScreenGui.IgnoreGuiInset = true
+        v2ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        v2ScreenGui.DisplayOrder = 2000000
+        v2ScreenGui.Parent = CoreGuiService
+
         local CategoryIcons = {
             gun = 'rbxassetid://109065124754087',
             melee = 'rbxassetid://10455604811',
@@ -1335,17 +1343,17 @@ local TargetInfo = {
 
             local billboardGui = TargetInventoryV2.State.PlayerFrames[player]
             if not billboardGui then
-                billboardGui = Instance.new("BillboardGui")
-                billboardGui.Name = player.Name .. "_InventoryV2"
+                billboardGui = Instance.new('BillboardGui')
+                billboardGui.Name = player.Name .. '_InventoryV2'
                 billboardGui.Adornee = rootPart
                 billboardGui.AlwaysOnTop = true
                 billboardGui.LightInfluence = 0
-                billboardGui.Size = UDim2.new(250, 0, 100, 0) 
+                billboardGui.Size = UDim2.new(8, 0, 2, 0)
                 billboardGui.SizeOffset = Vector2.new(0, 0)
-                billboardGui.StudsOffset = Vector3.new(0, -10, 0) 
+                billboardGui.StudsOffset = Vector3.new(0, -10, 0)
                 billboardGui.MaxDistance = math.huge
                 billboardGui.Enabled = false
-                billboardGui.Parent = rootPart
+                billboardGui.Parent = v2ScreenGui
                 TargetInventoryV2.State.PlayerFrames[player] = billboardGui
             end
 
