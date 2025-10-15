@@ -1295,14 +1295,6 @@ local TargetInfo = {
             return items
         end
 
-        local function hashInventory(items)
-            local concat = ''
-            for _, item in ipairs(items) do
-                concat ..= (item.Name or '') .. (item.Rarity or '') .. (item.Icon or '')
-            end
-            return tostring(#concat) .. tostring(#items)
-        end
-
         local function updateV2PlayerFrame(player)
             if not TargetInventoryV2.Settings.Enabled.Value then
                 return
@@ -1328,25 +1320,40 @@ local TargetInfo = {
                 return
             end
 
-            -- setup BillboardGui (replaces screen position logic)
+            -- ensure billboard state table exists
             TargetInventoryV2.State.PlayerBillboards = TargetInventoryV2.State.PlayerBillboards
                 or {}
-            local billboard = TargetInventoryV2.State.PlayerBillboards[player]
 
+            -- find or create billboard
+            local billboard = TargetInventoryV2.State.PlayerBillboards[player]
             if not billboard then
                 billboard = Instance.new('BillboardGui')
                 billboard.Name = player.Name .. '_InventoryBillboard'
                 billboard.AlwaysOnTop = true
-                billboard.Size = UDim2.new(0, 800, 0, 400)
+                billboard.Size = UDim2.new(0, 1000, 0, 600)
                 billboard.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
                 billboard.ResetOnSpawn = false
+                billboard.ExtentsOffset = Vector3.new(0, -5.5, 0) -- 👈 moves it below feet
                 billboard.Parent = game.CoreGui
                 TargetInventoryV2.State.PlayerBillboards[player] = billboard
             end
 
             billboard.Adornee = rootPart
-            billboard.StudsOffset = Vector3.new(0, -6, 0) -- 👈 below the player's feet
 
+            -- cleanup / create the frame inside billboard
+            local playerFrame = TargetInventoryV2.State.PlayerFrames[player]
+            if not playerFrame then
+                playerFrame = Instance.new('Frame')
+                playerFrame.Name = player.Name .. '_InventoryV2'
+                playerFrame.BackgroundTransparency = 1
+                playerFrame.AnchorPoint = Vector2.new(0.5, 0)
+                playerFrame.Size = UDim2.new(0, 0, 0, 0)
+                playerFrame.Visible = false
+                playerFrame.Parent = billboard
+                TargetInventoryV2.State.PlayerFrames[player] = playerFrame
+            end
+
+            -- gather items
             local equippedItem = TargetInventoryV2.Settings.ShowEquipped.Value
                 and getV2PlayerEquippedItem(player)
             local inventoryItems = TargetInventoryV2.Settings.ShowInventory.Value
@@ -1374,26 +1381,8 @@ local TargetInfo = {
                 table.insert(allItems, item)
             end
 
-            local playerFrame = TargetInventoryV2.State.PlayerFrames[player]
-            if not playerFrame then
-                playerFrame = Instance.new('Frame')
-                playerFrame.Name = player.Name .. '_InventoryV2'
-                playerFrame.BackgroundTransparency = 1
-                playerFrame.AnchorPoint = Vector2.new(0.5, 0)
-                playerFrame.Size = UDim2.new(0, 0, 0, 0)
-                playerFrame.Visible = false
-                playerFrame.Parent = billboard
-                TargetInventoryV2.State.PlayerFrames[player] = playerFrame
-            end
-
-            local invHash = hashInventory(allItems)
-            if lastInventoryHash[player] == invHash then
-                playerFrame.Visible = true
-                return
-            end
-            lastInventoryHash[player] = invHash
-
-            for _, child in pairs(playerFrame:GetChildren()) do
+            -- rebuild GUI
+            for _, child in ipairs(playerFrame:GetChildren()) do
                 child:Destroy()
             end
 
@@ -1423,6 +1412,7 @@ local TargetInfo = {
             local totalWidth = 0
             local itemHeight = TargetInventoryV2.Settings.IconSize.Value + 8
             local padding = 8
+            local TextService = game:GetService('TextService')
 
             for _, item in ipairs(allItems) do
                 local textSize = TextService:GetTextSize(
