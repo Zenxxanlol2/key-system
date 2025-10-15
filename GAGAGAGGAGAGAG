@@ -1341,6 +1341,7 @@ local TargetInfo = {
                 billboardGui.AlwaysOnTop = true
                 billboardGui.LightInfluence = 0
                 billboardGui.Size = UDim2.new(0, 600, 0, 250)
+                billboardGui.SizeOffset = Vector2.new(0, 0)
                 billboardGui.StudsOffset = Vector3.new(0, -5, 0)
                 billboardGui.MaxDistance = math.huge
                 billboardGui.Enabled = false
