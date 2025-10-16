@@ -341,7 +341,7 @@ local TargetInfo = {
 
         local CategoryIcons = {
             gun = 'rbxassetid://105540078',
-            melee = 'rbxassetid://10455604811',
+            melee = 'rbxassetid://7485051715',
             throwable = 'rbxassetid://13492316452',
             consumable = 'rbxassetid://17181103870',
             misc = 'rbxassetid://6966623635',
@@ -616,7 +616,7 @@ local TargetInfo = {
                     if folder and folder:FindFirstChild(itemName) then
                         IconCache[itemName] = ({
                             gun = 'rbxassetid://105540078',
-                            melee = 'rbxassetid://10455604811',
+                            melee = 'rbxassetid://7485051715',
                             throwable = 'rbxassetid://13492316452',
                             consumable = 'rbxassetid://17181103870',
                             misc = 'rbxassetid://6966623635',
