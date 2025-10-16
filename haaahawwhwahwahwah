@@ -2123,7 +2123,7 @@ local function Init(UI, Core, notify)
     end
 
     local gunconfigSection
-if UI.Tabs.Config then
+    if UI.Tabs.Config then
     gunconfigSection = UI.Tabs.Config:Section({ Name = 'GunSilent Sync', Side = 'Right' })
     gunconfigSection:Header({ Name = 'GunSilent Settings Sync' })
     gunconfigSection:Button({
