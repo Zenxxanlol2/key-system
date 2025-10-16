@@ -1454,45 +1454,10 @@ local TargetInfo = {
                     iconBgCorner.Parent = iconBackground
 
                     local icon = Instance.new('ImageLabel')
-                    icon.Size = UDim2.new(0, iconSize, 0, iconSize)
+                    icon.Size = UDim2.new(0, iconSize, 0, iconSize) -- Larger icon
                     icon.Position = UDim2.new(0, 2, 0, 2)
                     icon.BackgroundTransparency = 1
-
-                    -- FIXED: Use proper icon with fallback
-                    local itemIcon = item.Icon
-                    if itemIcon == '' or itemIcon == nil then
-                        -- Use category-based fallback
-                        if item.Category and CategoryIcons[item.Category] then
-                            itemIcon = CategoryIcons[item.Category]
-                        else
-                            -- Try to detect category from item name
-                            local itemNameLower = string.lower(item.Name)
-                            if string.find(itemNameLower, 'gun') then
-                                itemIcon = CategoryIcons.gun
-                            elseif
-                                string.find(itemNameLower, 'melee')
-                                or string.find(itemNameLower, 'knife')
-                                or string.find(itemNameLower, 'sword')
-                            then
-                                itemIcon = CategoryIcons.melee
-                            elseif
-                                string.find(itemNameLower, 'throw')
-                                or string.find(itemNameLower, 'grenade')
-                            then
-                                itemIcon = CategoryIcons.throwable
-                            elseif
-                                string.find(itemNameLower, 'consum')
-                                or string.find(itemNameLower, 'med')
-                                or string.find(itemNameLower, 'bandage')
-                            then
-                                itemIcon = CategoryIcons.consumable
-                            else
-                                itemIcon = CategoryIcons.misc
-                            end
-                        end
-                    end
-
-                    icon.Image = itemIcon
+                    icon.Image = item.Icon
                     icon.ImageColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
                             and getRarityColor(item.Rarity)
                         or Color3.fromRGB(255, 255, 255)
@@ -1971,23 +1936,6 @@ local TargetInfo = {
                             )
                         end,
                     }, 'V2ShowInventory')
-
-                    UI.Sections.TargetInventoryV2:Slider({
-                        Name = 'Max Items',
-                        Minimum = 1,
-                        Maximum = 10,
-                        Default = TargetInventoryV2.Settings.MaxInventoryItems.Default,
-                        Precision = 0,
-                        Callback = function(value)
-                            TargetInventoryV2.Settings.MaxInventoryItems.Value =
-                                value
-                            notify(
-                                'Target Inventory V2',
-                                'Max Items set to: ' .. value
-                            )
-                        end,
-                    }, 'V2MaxItems')
-
                     UI.Sections.TargetInventoryV2:Slider({
                         Name = 'Icon Size',
                         Minimum = 1,
