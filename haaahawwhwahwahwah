@@ -978,14 +978,11 @@ local function createHitDataGun(target)
                 trail.Attachment0 = attachment0
                 trail.Attachment1 = attachment1
 
-                table.insert(
-                    GunSilent.State.BulletTrails,
-                    {
-                        beam = trail,
-                        attachment0 = attachment0,
-                        attachment1 = attachment1,
-                    }
-                )
+                table.insert(GunSilent.State.BulletTrails, {
+                    beam = trail,
+                    attachment0 = attachment0,
+                    attachment1 = attachment1,
+                })
 
                 local fadeTime = GunSilent.Settings.BulletTrailsFadeTime.Value
                 local startTime = tick()
@@ -2124,58 +2121,159 @@ local function Init(UI, Core, notify)
 
     local gunconfigSection
     if UI.Tabs.Config then
-        gunconfigSection = UI.Tabs.Config:Section({ Name = 'GunSilent Sync', Side = 'Right' })
+        gunconfigSection =
+            UI.Tabs.Config:Section({ Name = 'GunSilent Sync', Side = 'Right' })
         gunconfigSection:Header({ Name = 'GunSilent Settings Sync' })
         gunconfigSection:Button({
-           Name = 'Sync Settings',
-           Callback = function()
-             CombatElements.GSEnabled.callback(CombatElements.GSEnabled.element:GetState())
-             CombatElements.RangePlus.callback(CombatElements.RangePlus.element:GetValue())
-            
-             -- Dropdown elements - use current setting values directly (NO GetOptions() loops)
-             CombatElements.HitPart.callback(GunSilent.Settings.HitPart.Value)
-             CombatElements.ShotgunSupport.callback(CombatElements.ShotgunSupport.element:GetState())
-             CombatElements.Wallbang.callback(CombatElements.Wallbang.element:GetState())
-             CombatElements.GenerateBullets.callback(CombatElements.GenerateBullets.element:GetValue())
-             CombatElements.SortMethod.callback(GunSilent.Settings.SortMethod.Value)
-             CombatElements.UseFOV.callback(CombatElements.UseFOV.element:GetState())
-             CombatElements.FOV.callback(CombatElements.FOV.element:GetValue())
-             CombatElements.ShowCircle.callback(CombatElements.ShowCircle.element:GetState())
-             CombatElements.CircleMethod.callback(GunSilent.Settings.CircleMethod.Value)
-             CombatElements.BasePrediction.callback(CombatElements.BasePrediction.element:GetValue())
-            
-             -- Visuals elements
-             VisualsElements.BulletTrailsEnabled.callback(VisualsElements.BulletTrailsEnabled.element:GetState())
-             VisualsElements.BulletTrailsFadeTime.callback(VisualsElements.BulletTrailsFadeTime.element:GetValue())
-             VisualsElements.HitParticlesEnabled.callback(VisualsElements.HitParticlesEnabled.element:GetState())
-             VisualsElements.UseGradient.callback(VisualsElements.UseGradient.element:GetState())
-             VisualsElements.HitParticlesMode.callback(GunSilent.Settings.HitParticlesMode.Value)
-             VisualsElements.ParticlePhysics.callback(GunSilent.Settings.ParticlePhysics.Value) -- FIXED: No GetValue() on dropdown
-             VisualsElements.HitParticlesCount.callback(VisualsElements.HitParticlesCount.element:GetValue())
-             VisualsElements.HitParticlesLifetime.callback(VisualsElements.HitParticlesLifetime.element:GetValue())
-             VisualsElements.HitParticlesMoveDistance.callback(VisualsElements.HitParticlesMoveDistance.element:GetValue())
-             VisualsElements.HitVisualEnabled.callback(VisualsElements.HitVisualEnabled.element:GetState())
-             VisualsElements.HitVisualFadeTime.callback(VisualsElements.HitVisualFadeTime.element:GetValue())
-             VisualsElements.HitVisualTransparency.callback(VisualsElements.HitVisualTransparency.element:GetValue())
-             VisualsElements.HitVisualMaterial.callback(GunSilent.Settings.HitVisualMaterial.Value)
-             VisualsElements.HitNotifyEnabled.callback(VisualsElements.HitNotifyEnabled.element:GetState())
-             VisualsElements.HitNotifyDuration.callback(VisualsElements.HitNotifyDuration.element:GetValue())
-             VisualsElements.HitNotifyPositionX.callback(VisualsElements.HitNotifyPositionX.element:GetValue())
-             VisualsElements.HitNotifyPositionY.callback(VisualsElements.HitNotifyPositionY.element:GetValue())
-             VisualsElements.PredictVisual.callback(VisualsElements.PredictVisual.element:GetState())
-             VisualsElements.PredictVisualMode.callback(GunSilent.Settings.PredictVisualMode.Value)
-             VisualsElements.PredictVisualMaterial.callback(GunSilent.Settings.PredictVisualMaterial.Value)
-             VisualsElements.HitboxTransparency.callback(VisualsElements.HitboxTransparency.element:GetValue())
-             VisualsElements.TrajectoryBeamEnabled.callback(VisualsElements.TrajectoryBeamEnabled.element:GetState())
-            
-             -- Re-initialize
-             initializeGunSilent()
-            if GunSilent.notify then
-                GunSilent.notify("GunSilent settings synced!")
-            end
-        end,
-    }, 'SyncSettings')
-end
+            Name = 'Sync Settings',
+            Callback = function()
+                CombatElements.GSEnabled.callback(
+                    CombatElements.GSEnabled.element:GetState()
+                )
+                CombatElements.RangePlus.callback(
+                    CombatElements.RangePlus.element:GetValue()
+                )
+                local hitPartOptions =
+                    CombatElements.HitPart.element:GetOptions()
+                for option, selected in pairs(hitPartOptions) do
+                    if selected then
+                        CombatElements.HitPart.callback(option)
+                        break
+                    end
+                end
+                CombatElements.ShotgunSupport.callback(
+                    CombatElements.ShotgunSupport.element:GetState()
+                )
+                CombatElements.Wallbang.callback(
+                    CombatElements.Wallbang.element:GetState()
+                )
+                CombatElements.GenerateBullets.callback(
+                    CombatElements.GenerateBullets.element:GetValue()
+                )
+                local sortMethodOptions =
+                    CombatElements.SortMethod.element:GetOptions()
+                for option, selected in pairs(sortMethodOptions) do
+                    if selected then
+                        CombatElements.SortMethod.callback(option)
+                        break
+                    end
+                end
+                CombatElements.UseFOV.callback(
+                    CombatElements.UseFOV.element:GetState()
+                )
+                CombatElements.FOV.callback(
+                    CombatElements.FOV.element:GetValue()
+                )
+                CombatElements.ShowCircle.callback(
+                    CombatElements.ShowCircle.element:GetState()
+                )
+                local circleMethodOptions =
+                    CombatElements.CircleMethod.element:GetOptions()
+                for option, selected in pairs(circleMethodOptions) do
+                    if selected then
+                        CombatElements.CircleMethod.callback(option)
+                        break
+                    end
+                end
+                CombatElements.BasePrediction.callback(
+                    CombatElements.BasePrediction.element:GetValue()
+                )
+                VisualsElements.BulletTrailsEnabled.callback(
+                    VisualsElements.BulletTrailsEnabled.element:GetState()
+                )
+                VisualsElements.BulletTrailsFadeTime.callback(
+                    VisualsElements.BulletTrailsFadeTime.element:GetValue()
+                )
+                VisualsElements.HitParticlesEnabled.callback(
+                    VisualsElements.HitParticlesEnabled.element:GetState()
+                )
+                VisualsElements.UseGradient.callback(
+                    VisualsElements.UseGradient.element:GetState()
+                )
+                local hitParticlesModeOptions =
+                    VisualsElements.HitParticlesMode.element:GetOptions()
+                for option, selected in pairs(hitParticlesModeOptions) do
+                    if selected then
+                        VisualsElements.HitParticlesMode.callback(option)
+                        break
+                    end
+                end
+                local particlePhysicsOptions =
+                    VisualsElements.ParticlePhysics.element:GetOptions()
+                for option, selected in pairs(particlePhysicsOptions) do
+                    if selected then
+                        VisualsElements.ParticlePhysics.callback(option)
+                        break
+                    end
+                end
+                VisualsElements.HitParticlesCount.callback(
+                    VisualsElements.HitParticlesCount.element:GetValue()
+                )
+                VisualsElements.HitParticlesLifetime.callback(
+                    VisualsElements.HitParticlesLifetime.element:GetValue()
+                )
+                VisualsElements.HitParticlesMoveDistance.callback(
+                    VisualsElements.HitParticlesMoveDistance.element:GetValue()
+                )
+                VisualsElements.HitVisualEnabled.callback(
+                    VisualsElements.HitVisualEnabled.element:GetState()
+                )
+                VisualsElements.HitVisualFadeTime.callback(
+                    VisualsElements.HitVisualFadeTime.element:GetValue()
+                )
+                VisualsElements.HitVisualTransparency.callback(
+                    VisualsElements.HitVisualTransparency.element:GetValue()
+                )
+                local hitVisualMaterialOptions =
+                    VisualsElements.HitVisualMaterial.element:GetOptions()
+                for option, selected in pairs(hitVisualMaterialOptions) do
+                    if selected then
+                        VisualsElements.HitVisualMaterial.callback(option)
+                        break
+                    end
+                end
+                VisualsElements.HitNotifyEnabled.callback(
+                    VisualsElements.HitNotifyEnabled.element:GetState()
+                )
+                VisualsElements.HitNotifyDuration.callback(
+                    VisualsElements.HitNotifyDuration.element:GetValue()
+                )
+                VisualsElements.HitNotifyPositionX.callback(
+                    VisualsElements.HitNotifyPositionX.element:GetValue()
+                )
+                VisualsElements.HitNotifyPositionY.callback(
+                    VisualsElements.HitNotifyPositionY.element:GetValue()
+                )
+                VisualsElements.PredictVisual.callback(
+                    VisualsElements.PredictVisual.element:GetState()
+                )
+                local predictVisualModeOptions =
+                    VisualsElements.PredictVisualMode.element:GetOptions()
+                for option, selected in pairs(predictVisualModeOptions) do
+                    if selected then
+                        VisualsElements.PredictVisualMode.callback(option)
+                        break
+                    end
+                end
+                local predictVisualMaterialOptions =
+                    VisualsElements.PredictVisualMaterial.element:GetOptions()
+                for option, selected in pairs(predictVisualMaterialOptions) do
+                    if selected then
+                        VisualsElements.PredictVisualMaterial.callback(option)
+                        break
+                    end
+                end
+                VisualsElements.HitboxTransparency.callback(
+                    VisualsElements.HitboxTransparency.element:GetValue()
+                )
+                VisualsElements.TrajectoryBeamEnabled.callback(
+                    VisualsElements.TrajectoryBeamEnabled.element:GetState()
+                )
+            end,
+        }, 'SyncSettings')
+    end
 
+    initializeGunSilent()
+end
 
 return { Init = Init }
