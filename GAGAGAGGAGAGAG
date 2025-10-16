@@ -56,15 +56,7 @@ local TargetInfo = {
                 Enabled = { Value = false, Default = false },
                 ShowEquipped = { Value = true, Default = true },
                 ShowInventory = { Value = true, Default = true },
-                MaxInventoryItems = { Value = 5, Default = 5 },
-                IconSize = { Value = 15, Default = 15 },
-                TextSize = { Value = 10, Default = 10 },
-                VerticalOffset = { Value = 10, Default = 10 },
-                HorizontalSpacing = { Value = 5, Default = 5 },
-                FadeDistance = { Value = 200, Default = 200 },
                 ShowRarityColors = { Value = true, Default = true },
-                AutoAlign = { Value = true, Default = true },
-                AnimationEnabled = { Value = true, Default = true },
             },
             State = {
                 PlayerFrames = {},
@@ -1306,23 +1298,15 @@ local TargetInfo = {
 
             local rootPart = character:FindFirstChild('HumanoidRootPart')
 
-            -- Get player items
             local equippedItem = TargetInventoryV2.Settings.ShowEquipped.Value
                 and getV2PlayerEquippedItem(player)
             local inventoryItems = TargetInventoryV2.Settings.ShowInventory.Value
                     and getV2PlayerInventory(player)
                 or {}
 
-            if
-                #inventoryItems
-                > TargetInventoryV2.Settings.MaxInventoryItems.Value
-            then
+            if #inventoryItems > 4 then
                 inventoryItems = {
-                    unpack(
-                        inventoryItems,
-                        1,
-                        TargetInventoryV2.Settings.MaxInventoryItems.Value
-                    ),
+                    unpack(inventoryItems, 1, 4),
                 }
             end
 
@@ -1409,8 +1393,8 @@ local TargetInfo = {
                 containerStroke.Thickness = 1
                 containerStroke.Parent = mainContainer
 
-                local iconSize = 15
-                local textSize = 10
+                local iconSize = 15 
+                local textSize = 10 
                 local itemHeight = iconSize + 12
                 local padding = 10
 
@@ -1454,7 +1438,7 @@ local TargetInfo = {
                     iconBgCorner.Parent = iconBackground
 
                     local icon = Instance.new('ImageLabel')
-                    icon.Size = UDim2.new(0, iconSize, 0, iconSize) -- Larger icon
+                    icon.Size = UDim2.new(0, iconSize, 0, iconSize)
                     icon.Position = UDim2.new(0, 2, 0, 2)
                     icon.BackgroundTransparency = 1
                     icon.Image = item.Icon
@@ -1883,7 +1867,6 @@ local TargetInfo = {
                     UI.Sections.TargetInventoryV2:Header({
                         Name = 'Target Inventory V2 Settings',
                     })
-
                     UI.Sections.TargetInventoryV2:Toggle({
                         Name = 'Enabled',
                         Default = TargetInventoryV2.Settings.Enabled.Default,
@@ -1906,7 +1889,6 @@ local TargetInfo = {
                             end
                         end,
                     }, 'V2Enabled')
-
                     UI.Sections.TargetInventoryV2:Toggle({
                         Name = 'Show Equipped',
                         Default = TargetInventoryV2.Settings.ShowEquipped.Default,
@@ -1921,7 +1903,6 @@ local TargetInfo = {
                             )
                         end,
                     }, 'V2ShowEquipped')
-
                     UI.Sections.TargetInventoryV2:Toggle({
                         Name = 'Show Inventory',
                         Default = TargetInventoryV2.Settings.ShowInventory.Default,
@@ -1936,36 +1917,6 @@ local TargetInfo = {
                             )
                         end,
                     }, 'V2ShowInventory')
-                    UI.Sections.TargetInventoryV2:Slider({
-                        Name = 'Icon Size',
-                        Minimum = 1,
-                        Maximum = 15,
-                        Default = TargetInventoryV2.Settings.IconSize.Default,
-                        Precision = 0,
-                        Callback = function(value)
-                            TargetInventoryV2.Settings.IconSize.Value = value
-                            notify(
-                                'Target Inventory V2',
-                                'Icon Size set to: ' .. value
-                            )
-                        end,
-                    }, 'V2IconSize')
-
-                    UI.Sections.TargetInventoryV2:Slider({
-                        Name = 'Text Size',
-                        Minimum = 1,
-                        Maximum = 10,
-                        Default = TargetInventoryV2.Settings.TextSize.Default,
-                        Precision = 0,
-                        Callback = function(value)
-                            TargetInventoryV2.Settings.TextSize.Value = value
-                            notify(
-                                'Target Inventory V2',
-                                'Text Size set to: ' .. value
-                            )
-                        end,
-                    }, 'V2TextSize')
-
                     UI.Sections.TargetInventoryV2:Toggle({
                         Name = 'Rarity Colors',
                         Default = TargetInventoryV2.Settings.ShowRarityColors.Default,
