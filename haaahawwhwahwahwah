@@ -22,7 +22,6 @@ local GunSilent = {
         BulletTrailsEnabled = { Value = false, Default = false },
         BulletTrailsFadeTime = { Value = 1, Default = 1 },
         BulletTrailsColor = { Value = Color3.fromRGB(147, 112, 219), Default = Color3.fromRGB(147, 112, 219) },
-        Wallbang = { Value = false, Default = false },
         HitChance = { Value = 100, Default = 100 },
         SortMethod = { Value = "Mouse&Distance", Default = "Mouse&Distance" },
         ShotgunSupport = { Value = false, Default = false },
@@ -730,19 +729,15 @@ end
 
 local function updateVisualsGun(target)
     local currentTime = tick()
-    if currentTime - GunSilent.State.LastVisualUpdateTime < 0.05 then
-        return
-    end
+    if currentTime - GunSilent.State.LastVisualUpdateTime < 0.05 then return end
     GunSilent.State.LastVisualUpdateTime = currentTime
 
     local localRoot = GunSilent.State.LocalRoot
     if not GunSilent.Settings.Enabled.Value or not localRoot then
         if GunSilent.State.PredictVisualPart then
-            if type(GunSilent.State.PredictVisualPart) == 'table' then
+            if type(GunSilent.State.PredictVisualPart) == "table" then
                 for _, part in ipairs(GunSilent.State.PredictVisualPart) do
-                    if part then
-                        part:Destroy()
-                    end
+                    if part then part:Destroy() end
                 end
             else
                 GunSilent.State.PredictVisualPart:Destroy()
@@ -757,18 +752,11 @@ local function updateVisualsGun(target)
     local targetPos = prediction and prediction.clientPosition
     local predictionPos = prediction and prediction.position
 
-    if
-        not target
-        or not target.Character
-        or not predictionPos
-        or not prediction.direction
-    then
+    if not target or not target.Character or not predictionPos or not prediction.direction then
         if GunSilent.State.PredictVisualPart then
-            if type(GunSilent.State.PredictVisualPart) == 'table' then
+            if type(GunSilent.State.PredictVisualPart) == "table" then
                 for _, part in ipairs(GunSilent.State.PredictVisualPart) do
-                    if part then
-                        part:Destroy()
-                    end
+                    if part then part:Destroy() end
                 end
             else
                 GunSilent.State.PredictVisualPart:Destroy()
@@ -779,30 +767,20 @@ local function updateVisualsGun(target)
         return
     end
 
-    if
-        GunSilent.State.LastTargetPos
-        and (targetPos - GunSilent.State.LastTargetPos).Magnitude < 1
-    then
-        return
-    end
+    if GunSilent.State.LastTargetPos and (targetPos - GunSilent.State.LastTargetPos).Magnitude < 1 then return end
 
     local targetChar = target.Character
     local hitPart = targetChar:FindFirstChild(GunSilent.Settings.HitPart.Value)
-    if not hitPart then
-        hitPart = targetChar:FindFirstChild('HumanoidRootPart')
-    end
+    if not hitPart then hitPart = targetChar:FindFirstChild("HumanoidRootPart") end
 
-    GunSilent.State.LastTargetPos, GunSilent.State.LastPredictionPos =
-        targetPos, predictionPos
+    GunSilent.State.LastTargetPos, GunSilent.State.LastPredictionPos = targetPos, predictionPos
     local startPos = localRoot.Position + Vector3.new(0, 1.5, 0)
 
     if GunSilent.Settings.PredictVisual.Value then
         if GunSilent.State.PredictVisualPart then
-            if type(GunSilent.State.PredictVisualPart) == 'table' then
+            if type(GunSilent.State.PredictVisualPart) == "table" then
                 for _, part in ipairs(GunSilent.State.PredictVisualPart) do
-                    if part then
-                        part:Destroy()
-                    end
+                    if part then part:Destroy() end
                 end
             else
                 GunSilent.State.PredictVisualPart:Destroy()
@@ -810,25 +788,14 @@ local function updateVisualsGun(target)
             GunSilent.State.PredictVisualPart = nil
         end
 
-        local visual = createPredictVisual(
-            predictionPos,
-            GunSilent.Settings.PredictVisualMode.Value,
-            GunSilent.Settings.PredictVisualMaterial.Value,
-            targetChar,
-            GunSilent.Settings.HitboxColor.Value,
-            GunSilent.Settings.HitboxTransparency.Value
-        )
+        local visual = createPredictVisual(predictionPos, GunSilent.Settings.PredictVisualMode.Value, GunSilent.Settings.PredictVisualMaterial.Value, targetChar, GunSilent.Settings.HitboxColor.Value, GunSilent.Settings.HitboxTransparency.Value)
         if visual then
-            GunSilent.State.PredictVisualPart = type(visual) == 'table'
-                    and visual
-                or { visual }
+            GunSilent.State.PredictVisualPart = type(visual) == "table" and visual or {visual}
         end
     elseif GunSilent.State.PredictVisualPart then
-        if type(GunSilent.State.PredictVisualPart) == 'table' then
+        if type(GunSilent.State.PredictVisualPart) == "table" then
             for _, part in ipairs(GunSilent.State.PredictVisualPart) do
-                if part then
-                    part:Destroy()
-                end
+                if part then part:Destroy() end
             end
         else
             GunSilent.State.PredictVisualPart:Destroy()
@@ -840,43 +807,30 @@ local function updateVisualsGun(target)
 end
 
 local function initializeGunSilent()
-    if GunSilent.State.Connection then
-        GunSilent.State.Connection:Disconnect()
-    end
+    if GunSilent.State.Connection then GunSilent.State.Connection:Disconnect() end
     if not GunSilent.State.V_U_4 then
         for _, obj in pairs(getgc(true)) do
-            if
-                type(obj) == 'table'
-                and not getmetatable(obj)
-                and obj.event
-                and obj.func
-            then
+            if type(obj) == "table" and not getmetatable(obj) and obj.event and obj.func then
                 GunSilent.State.V_U_4 = obj
                 break
             end
         end
     end
 
-    local remoteEvent = ReplicatedStorage:FindFirstChild('Remotes')
-        and ReplicatedStorage.Remotes:FindFirstChild('Send')
-    if not remoteEvent or not remoteEvent:IsA('RemoteEvent') then
-        return
-    end
+    local remoteEvent = ReplicatedStorage:FindFirstChild("Remotes") and ReplicatedStorage.Remotes:FindFirstChild("Send")
+    if not remoteEvent or not remoteEvent:IsA("RemoteEvent") then return end
 
     remoteEvent.OnClientEvent:Connect(function(...)
-        local args = { ... }
-        if args[1] == 'hit_confirmed' then
+        local args = {...}
+        if args[1] == "hit_confirmed" then
             local headshot = args[2]
             local kill = args[3]
-            local pendingHit = GunSilent.State.PendingHits[GunSilent.State.LastEventId]
-                or {
-                    target = GunSilent.Core.GunSilentTarget.CurrentTarget,
-                    position = GunSilent.State.LastHitPosition,
-                }
+            local pendingHit = GunSilent.State.PendingHits[GunSilent.State.LastEventId] or
+                             { target = GunSilent.Core.GunSilentTarget.CurrentTarget, position = GunSilent.State.LastHitPosition }
             if pendingHit.target and (headshot or kill) then
                 spawnHitParticles(pendingHit.target, pendingHit.position)
                 spawnHitVisual(pendingHit.target, pendingHit.position)
-                showNotification('Success Hit!')
+                showNotification("Success Hit!")
             end
             if GunSilent.State.PendingHits[GunSilent.State.LastEventId] then
                 GunSilent.State.PendingHits[GunSilent.State.LastEventId] = nil
@@ -900,20 +854,6 @@ local function initializeGunSilent()
                         local hitData = createHitDataGun(nearestPlayer)
                         if aimCFrame and hitData then
                             modifiedArgs = {args[1], args[2], equippedTool, aimCFrame, hitData}
-                            
-                            if GunSilent.Settings.Wallbang.Value then
-                                if #modifiedArgs >= 5 then
-                                    modifiedArgs[5] = CFrame.new(math.huge, math.huge, math.huge)
-                                else
-                                    for i, arg in ipairs(modifiedArgs) do
-                                        if typeof(arg) == "CFrame" and i > 3 then
-                                            modifiedArgs[i] = CFrame.new(math.huge, math.huge, math.huge)
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-                            
                             GunSilent.State.PendingHits[args[1]] = {
                                 target = nearestPlayer,
                                 position = GunSilent.State.LastHitPosition
@@ -1079,7 +1019,7 @@ local function Init(UI, Core, notify)
                 element = combatSection:Slider({
                     Name = "Range Plus",
                     Minimum = 0,
-                    Maximum = 3000,
+                    Maximum = 300,
                     Default = GunSilent.Settings.RangePlus.Value,
                     Precision = 0,
                     Callback = function(value)
@@ -1108,18 +1048,6 @@ local function Init(UI, Core, notify)
                     Callback = function(value) GunSilent.Settings.HitPart.Value = value end
                 }, 'HitPart'),
                 callback = function(value) GunSilent.Settings.HitPart.Value = value end
-            }
-            CombatElements.Wallbang = {
-                element = combatSection:Toggle({
-                     Name = "Wallbang",
-                     Default = GunSilent.Settings.Wallbang.Value,
-                     Callback = function(value)
-                           GunSilent.Settings.Wallbang.Value = value
-                     end
-                }, 'Wallbang'),
-                callback = function(value)
-                    GunSilent.Settings.Wallbang.Value = value
-                end
             }
             CombatElements.ShotgunSupport = {
                 element = combatSection:Toggle({
@@ -1536,7 +1464,6 @@ local function Init(UI, Core, notify)
                     if selected then CombatElements.HitPart.callback(option) break end
                 end
                 CombatElements.ShotgunSupport.callback(CombatElements.ShotgunSupport.element:GetState())
-                CombatElements.Wallbang.callback(CombatElements.Wallbang.element:GetState())
                 CombatElements.GenerateBullets.callback(CombatElements.GenerateBullets.element:GetValue())
                 local sortMethodOptions = CombatElements.SortMethod.element:GetOptions()
                 for option, selected in pairs(sortMethodOptions) do
