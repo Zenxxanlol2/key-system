@@ -1319,22 +1319,26 @@ local TargetInfo = {
                 table.insert(allItems, item)
             end
 
+            local camera = Workspace.CurrentCamera
+            local distance = (rootPart.Position - camera.CFrame.Position).Magnitude
+            local refDistance = 20
+            local scale = math.clamp(refDistance / distance, 0.9, 1.3)
+
             local billboardGui = TargetInventoryV2.State.PlayerFrames[player]
             if not billboardGui then
                 billboardGui = Instance.new('BillboardGui')
                 billboardGui.Name = player.Name .. '_InventoryV2'
                 billboardGui.Adornee = rootPart
+                billboardGui.Parent = rootPart
                 billboardGui.AlwaysOnTop = true
                 billboardGui.LightInfluence = 0
-                billboardGui.Size = UDim2.new(0, 600, 0, 100)
-                billboardGui.StudsOffset = Vector3.new(0, 4, 0)
+                billboardGui.Size = UDim2.new(0, 200, 0, 30)
+                billboardGui.StudsOffset = Vector3.new(0, -6, 0) 
                 billboardGui.MaxDistance = math.huge
-                billboardGui.Enabled = false
-                billboardGui.Parent = rootPart
+                billboardGui.Enabled = true
                 TargetInventoryV2.State.PlayerFrames[player] = billboardGui
             end
 
-            -- Hash-based rebuilding (like in your example)
             local itemsHash = ''
             for _, item in ipairs(allItems) do
                 itemsHash = itemsHash
@@ -1359,7 +1363,7 @@ local TargetInfo = {
                 listLayout.FillDirection = Enum.FillDirection.Horizontal
                 listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
                 listLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-                listLayout.Padding = UDim.new(0, 6) -- Spacing between items
+                listLayout.Padding = UDim.new(0, 6)
                 listLayout.Parent = billboardGui
 
                 local scale = 1
@@ -1391,7 +1395,6 @@ local TargetInfo = {
                     local scaledPadding = padding * scale
                     local scaledItemWidth = scaledIconSize + scaledPadding * 2
 
-                    -- Individual item container
                     local itemBg = Instance.new('Frame')
                     itemBg.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
                     itemBg.BackgroundTransparency = 0.6
@@ -1404,7 +1407,6 @@ local TargetInfo = {
                     itemBgCorner.CornerRadius = UDim.new(0, 4)
                     itemBgCorner.Parent = itemBg
 
-                    -- Equipped indicator (green stripe)
                     if item.IsEquipped then
                         local greenStripe = Instance.new('Frame')
                         greenStripe.Size = UDim2.new(1, 0, 0, 2)
@@ -1420,7 +1422,6 @@ local TargetInfo = {
                         stripeCorner.Parent = greenStripe
                     end
 
-                    -- Vertical layout for icon + text
                     local verticalLayout = Instance.new('UIListLayout')
                     verticalLayout.FillDirection = Enum.FillDirection.Vertical
                     verticalLayout.HorizontalAlignment =
@@ -1430,14 +1431,12 @@ local TargetInfo = {
                     verticalLayout.Padding = UDim.new(0, scaledPadding / 2)
                     verticalLayout.Parent = itemBg
 
-                    -- Icon frame
                     local iconFrame = Instance.new('Frame')
                     iconFrame.Size =
                         UDim2.new(0, scaledIconSize, 0, scaledIconSize)
                     iconFrame.BackgroundTransparency = 1
                     iconFrame.Parent = itemBg
 
-                    -- Icon with rarity color
                     local itemIcon = Instance.new('ImageLabel')
                     itemIcon.Size = UDim2.new(1, 0, 1, 0)
                     itemIcon.BackgroundTransparency = 1
@@ -1448,7 +1447,6 @@ local TargetInfo = {
                         or Color3.fromRGB(255, 255, 255)
                     itemIcon.Parent = iconFrame
 
-                    -- Item name below icon
                     local itemText = Instance.new('TextLabel')
                     itemText.Size = UDim2.new(1, -4, 0, scaledTextHeight)
                     itemText.BackgroundTransparency = 1
