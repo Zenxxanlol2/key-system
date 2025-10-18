@@ -61,6 +61,7 @@ local TargetInfo = {
             State = {
                 PlayerFrames = {},
                 ItemDatabase = {},
+                PlayerHashes = {},
                 IconCache = {},
                 LastUpdateTime = 0,
                 UpdateInterval = 0.1,
@@ -1333,157 +1334,140 @@ local TargetInfo = {
                 TargetInventoryV2.State.PlayerFrames[player] = billboardGui
             end
 
-            local shouldRebuild = false
-            local currentItemsHash = ''
+            -- Hash-based rebuilding (like in your example)
+            local itemsHash = ''
             for _, item in ipairs(allItems) do
-                currentItemsHash = currentItemsHash
+                itemsHash = itemsHash
                     .. item.Name
                     .. (item.IsEquipped and 'E' or 'I')
             end
-
-            if not billboardGui:FindFirstChild('LastItemsHash') then
-                shouldRebuild = true
-                local hashValue = Instance.new('StringValue')
-                hashValue.Name = 'LastItemsHash'
-                hashValue.Value = currentItemsHash
-                hashValue.Parent = billboardGui
-            else
-                local lastHash = billboardGui:FindFirstChild('LastItemsHash')
-                if lastHash.Value ~= currentItemsHash then
-                    shouldRebuild = true
-                    lastHash.Value = currentItemsHash
-                end
-            end
+            local needsRebuild = TargetInventoryV2.State.PlayerHashes[player]
+                ~= itemsHash
+            TargetInventoryV2.State.PlayerHashes[player] = itemsHash
 
             if #allItems == 0 then
                 billboardGui.Enabled = false
                 return
             end
 
-            if shouldRebuild then
+            if needsRebuild then
                 for _, child in pairs(billboardGui:GetChildren()) do
-                    if child.Name ~= 'LastItemsHash' then
-                        child:Destroy()
-                    end
+                    child:Destroy()
                 end
 
-                local playerFrame = Instance.new('Frame')
-                playerFrame.Name = 'InventoryFrame'
-                playerFrame.BackgroundTransparency = 1
-                playerFrame.Size = UDim2.new(1, 0, 1, 0)
-                playerFrame.Position = UDim2.new(0.5, 0, 0, 0)
-                playerFrame.AnchorPoint = Vector2.new(0.5, 0)
-                playerFrame.Parent = billboardGui
+                local listLayout = Instance.new('UIListLayout')
+                listLayout.FillDirection = Enum.FillDirection.Horizontal
+                listLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+                listLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+                listLayout.Padding = UDim.new(0, 6) -- Spacing between items
+                listLayout.Parent = billboardGui
 
-                local mainContainer = Instance.new('Frame')
-                mainContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-                mainContainer.BackgroundTransparency = 0.2
-                mainContainer.BorderSizePixel = 0
-                mainContainer.Size = UDim2.new(0, 0, 0, 0)
-                mainContainer.Position = UDim2.new(0.5, 0, 0, 0)
-                mainContainer.AnchorPoint = Vector2.new(0.5, 0)
-                mainContainer.Parent = playerFrame
+                local scale = 1
+                local baseIconSize = 25
+                local baseTextHeight = 10
+                local basePadding = 4
+                local baseItemHeight = baseIconSize
+                    + baseTextHeight
+                    + basePadding * 2
 
-                local containerCorner = Instance.new('UICorner')
-                containerCorner.CornerRadius = UDim.new(0, 6)
-                containerCorner.Parent = mainContainer
+                local numItems = #allItems
+                local compressFactor = numItems > 4 and 0.8 or 1
+                local iconSize = baseIconSize * compressFactor
+                local textHeight = baseTextHeight * compressFactor
+                local padding = basePadding * compressFactor
+                local itemHeight = baseItemHeight * compressFactor
 
-                local containerStroke = Instance.new('UIStroke')
-                containerStroke.Color = Color3.fromRGB(60, 60, 80)
-                containerStroke.Thickness = 1
-                containerStroke.Parent = mainContainer
+                local totalWidth = numItems * (iconSize + padding * 2)
+                    + (numItems - 1) * (padding * 2)
+                local scaledTotalWidth = totalWidth * scale
+                local scaledItemHeight = itemHeight * scale
 
-                local iconSize = 25
-                local textSize = 10
-                local itemWidth = 50
-                local itemHeight = 50
-                local itemSpacing = 8
+                billboardGui.Size =
+                    UDim2.new(0, scaledTotalWidth, 0, scaledItemHeight)
 
-                local totalWidth = (#allItems * itemWidth)
-                    + ((#allItems - 1) * itemSpacing)
-                local currentX = -totalWidth / 2
-                local maxItemHeight = 0
+                for i, item in ipairs(allItems) do
+                    local scaledIconSize = iconSize * scale
+                    local scaledTextHeight = textHeight * scale
+                    local scaledPadding = padding * scale
+                    local scaledItemWidth = scaledIconSize + scaledPadding * 2
 
-                for _, item in ipairs(allItems) do
-                    -- Separate container for each item
-                    local itemContainer = Instance.new('Frame')
-                    itemContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
-                    itemContainer.BackgroundTransparency = 0.3
-                    itemContainer.Size = UDim2.new(0, itemWidth, 0, itemHeight)
-                    itemContainer.Position = UDim2.new(0.5, currentX, 0, 4)
-                    itemContainer.AnchorPoint = Vector2.new(0.5, 0)
-                    itemContainer.Parent = mainContainer
+                    -- Individual item container
+                    local itemBg = Instance.new('Frame')
+                    itemBg.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
+                    itemBg.BackgroundTransparency = 0.6
+                    itemBg.BorderSizePixel = 0
+                    itemBg.Size =
+                        UDim2.new(0, scaledItemWidth, 0, scaledItemHeight)
+                    itemBg.Parent = billboardGui
 
-                    local itemContainerCorner = Instance.new('UICorner')
-                    itemContainerCorner.CornerRadius = UDim.new(0, 4)
-                    itemContainerCorner.Parent = itemContainer
+                    local itemBgCorner = Instance.new('UICorner')
+                    itemBgCorner.CornerRadius = UDim.new(0, 4)
+                    itemBgCorner.Parent = itemBg
 
-                    local itemContainerStroke = Instance.new('UIStroke')
-                    itemContainerStroke.Color = Color3.fromRGB(80, 80, 100)
-                    itemContainerStroke.Thickness = 1
-                    itemContainerStroke.Parent = itemContainer
+                    -- Equipped indicator (green stripe)
+                    if item.IsEquipped then
+                        local greenStripe = Instance.new('Frame')
+                        greenStripe.Size = UDim2.new(1, 0, 0, 2)
+                        greenStripe.Position = UDim2.new(0, 0, 1, 0)
+                        greenStripe.AnchorPoint = Vector2.new(0, 1)
+                        greenStripe.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+                        greenStripe.BackgroundTransparency = 0.3
+                        greenStripe.BorderSizePixel = 0
+                        greenStripe.Parent = itemBg
 
-                    -- Icon background
-                    local iconBackground = Instance.new('Frame')
-                    iconBackground.Size =
-                        UDim2.new(0, iconSize + 4, 0, iconSize + 4)
-                    iconBackground.Position = UDim2.new(0.5, 0, 0, 6)
-                    iconBackground.AnchorPoint = Vector2.new(0.5, 0)
-                    iconBackground.BackgroundColor3 = Color3.fromRGB(50, 50, 70)
-                    iconBackground.BorderSizePixel = 0
-                    iconBackground.Parent = itemContainer
+                        local stripeCorner = Instance.new('UICorner')
+                        stripeCorner.CornerRadius = UDim.new(0, 1)
+                        stripeCorner.Parent = greenStripe
+                    end
 
-                    local iconBgCorner = Instance.new('UICorner')
-                    iconBgCorner.CornerRadius = UDim.new(0, 4)
-                    iconBgCorner.Parent = iconBackground
+                    -- Vertical layout for icon + text
+                    local verticalLayout = Instance.new('UIListLayout')
+                    verticalLayout.FillDirection = Enum.FillDirection.Vertical
+                    verticalLayout.HorizontalAlignment =
+                        Enum.HorizontalAlignment.Center
+                    verticalLayout.VerticalAlignment =
+                        Enum.VerticalAlignment.Center
+                    verticalLayout.Padding = UDim.new(0, scaledPadding / 2)
+                    verticalLayout.Parent = itemBg
 
-                    -- Icon
-                    local icon = Instance.new('ImageLabel')
-                    icon.Size = UDim2.new(0, iconSize, 0, iconSize)
-                    icon.Position = UDim2.new(0, 2, 0, 2)
-                    icon.BackgroundTransparency = 1
-                    icon.Image = item.Icon
-                    icon.ImageColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
+                    -- Icon frame
+                    local iconFrame = Instance.new('Frame')
+                    iconFrame.Size =
+                        UDim2.new(0, scaledIconSize, 0, scaledIconSize)
+                    iconFrame.BackgroundTransparency = 1
+                    iconFrame.Parent = itemBg
+
+                    -- Icon with rarity color
+                    local itemIcon = Instance.new('ImageLabel')
+                    itemIcon.Size = UDim2.new(1, 0, 1, 0)
+                    itemIcon.BackgroundTransparency = 1
+                    itemIcon.Image = item.Icon ~= '' and item.Icon
+                        or 'rbxassetid://73279554401260'
+                    itemIcon.ImageColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
                             and getRarityColor(item.Rarity)
                         or Color3.fromRGB(255, 255, 255)
-                    icon.Parent = iconBackground
+                    itemIcon.Parent = iconFrame
 
-                    if item.IsEquipped then
-                        local equippedBorder = Instance.new('UIStroke')
-                        equippedBorder.Color = Color3.fromRGB(0, 255, 0)
-                        equippedBorder.Thickness = 2
-                        equippedBorder.Parent = iconBackground
-                    end
-
-                    -- Item name below the icon with auto text alignment
-                    local textLabel = Instance.new('TextLabel')
-                    textLabel.Size = UDim2.new(1, -4, 0, textSize + 4)
-                    textLabel.Position = UDim2.new(0, 2, 0, iconSize + 16)
-                    textLabel.BackgroundTransparency = 1
-                    textLabel.Text = item.Name
-                    textLabel.TextColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
+                    -- Item name below icon
+                    local itemText = Instance.new('TextLabel')
+                    itemText.Size = UDim2.new(1, -4, 0, scaledTextHeight)
+                    itemText.BackgroundTransparency = 1
+                    itemText.Text = item.Name
+                    itemText.TextColor3 = TargetInventoryV2.Settings.ShowRarityColors.Value
                             and getRarityColor(item.Rarity)
                         or Color3.fromRGB(220, 220, 220)
-                    textLabel.TextSize = textSize
-                    textLabel.Font = Enum.Font.GothamMedium
-                    textLabel.TextXAlignment = Enum.TextXAlignment.Center
-                    textLabel.TextYAlignment = Enum.TextYAlignment.Center
-                    textLabel.TextWrapped = true
-                    textLabel.Parent = itemContainer
-
-                    maxItemHeight = math.max(maxItemHeight, itemHeight)
-                    currentX = currentX + itemWidth + itemSpacing
+                    itemText.TextSize = 10
+                    itemText.Font = Enum.Font.GothamMedium
+                    itemText.TextXAlignment = Enum.TextXAlignment.Center
+                    itemText.TextScaled = true
+                    itemText.TextWrapped = true
+                    itemText.Parent = itemBg
                 end
-
-                mainContainer.Size =
-                    UDim2.new(0, totalWidth + 16, 0, maxItemHeight + 8)
-                playerFrame.Size =
-                    UDim2.new(0, totalWidth + 16, 0, maxItemHeight + 8)
             end
 
             billboardGui.Enabled = true
         end
-        
+
         local function updateAllV2Frames()
             if not TargetInventoryV2.Settings.Enabled.Value then
                 for player, frame in pairs(TargetInventoryV2.State.PlayerFrames) do
