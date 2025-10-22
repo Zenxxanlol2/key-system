@@ -9,6 +9,7 @@ local CoreGui = game:GetService('CoreGui')
 local GunSilent = {
     Settings = {
         BasePrediction = { Value = 0.1, Default = 0.1 },
+        AntiLockResolver = { Value = false, Default = false },
         Enabled = { Value = false, Default = false },
         RangePlus = { Value = 200, Default = 200 },
         HitPart = { Value = 'Head', Default = 'Head' },
@@ -1253,6 +1254,29 @@ local function updateVisualsGun(target)
     updateTrajectoryBeam(startPos, predictionPos)
 end
 
+local oldCalc = ToolModule.calculate_bullet_direction
+ToolModule.calculate_bullet_direction = function(self, _)
+    if
+        GunSilent.Settings.Enabled.Value
+        and GunSilent.Core.GunSilentTarget.CurrentTarget
+    then
+        local target = GunSilent.Core.GunSilentTarget.CurrentTarget
+        local prediction = predictTargetPositionGun(target)
+
+        if prediction and prediction.position then
+            local barrelAttachment =
+                self.instance:FindFirstChild('BarrelAttachment', true)
+            local origin = barrelAttachment
+                and barrelAttachment.WorldCFrame.Position
+
+            if origin then
+                return (prediction.position - origin).Unit
+            end
+        end
+    end
+    return oldCalc(self, _)
+end
+
 local function initializeGunSilent()
     if GunSilent.State.Connection then
         GunSilent.State.Connection:Disconnect()
@@ -1680,6 +1704,18 @@ local function Init(UI, Core, notify)
                 }, 'CircleMethod'),
                 callback = function(value)
                     GunSilent.Settings.CircleMethod.Value = value
+                end,
+            }
+            CombatElements.AntiLockResolver = {
+                element = combatSection:Toggle({
+                    Name = 'Anti-Lock Resolver',
+                    Default = GunSilent.Settings.AntiLockResolver.Value,
+                    Callback = function(value)
+                        GunSilent.Settings.AntiLockResolver.Value = value
+                    end,
+                }, 'AntiLockResolver'),
+                callback = function(value)
+                    GunSilent.Settings.AntiLockResolver.Value = value
                 end,
             }
             combatSection:Header({ Name = 'Prediction Settings' })
@@ -2209,6 +2245,9 @@ local function Init(UI, Core, notify)
                         break
                     end
                 end
+                CombatElements.AntiLockResolver.callback(
+                    CombatElements.AntiLockResolver.element:GetState()
+                )
                 CombatElements.BasePrediction.callback(
                     CombatElements.BasePrediction.element:GetValue()
                 )
