@@ -1297,6 +1297,8 @@ function ResolveTargetPosition(target)
 
     if root then
         velocity = root.Velocity
+        -- Apply velocity resolver (remove Y movement)
+        velocity = Vector3.new(velocity.X, 0, velocity.Z)
     end
 
     -- Apply prediction
