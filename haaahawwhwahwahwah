@@ -1258,11 +1258,18 @@ local ToolModule = require(ReplicatedStorage.Modules.Game.ItemTypes.Gun)
 local Net = require(ReplicatedStorage.Modules.Core.Net)
 
 local oldCalc = ToolModule.calculate_bullet_direction
+local inHook = false
+
 ToolModule.calculate_bullet_direction = function(self, _)
+    if inHook then
+        return oldCalc(self, _)
+    end
+
     if
         GunSilent.Settings.Enabled.Value
         and GunSilent.Core.GunSilentTarget.CurrentTarget
     then
+        inHook = true
         local target = GunSilent.Core.GunSilentTarget.CurrentTarget
         local prediction = predictTargetPositionGun(target)
 
@@ -1273,9 +1280,11 @@ ToolModule.calculate_bullet_direction = function(self, _)
                 and barrelAttachment.WorldCFrame.Position
 
             if origin then
+                inHook = false
                 return (prediction.position - origin).Unit
             end
         end
+        inHook = false
     end
     return oldCalc(self, _)
 end
