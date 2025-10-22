@@ -1254,6 +1254,9 @@ local function updateVisualsGun(target)
     updateTrajectoryBeam(startPos, predictionPos)
 end
 
+local ToolModule = require(ReplicatedStorage.Modules.Game.ItemTypes.Gun)
+local Net = require(ReplicatedStorage.Modules.Core.Net)
+
 local oldCalc = ToolModule.calculate_bullet_direction
 ToolModule.calculate_bullet_direction = function(self, _)
     if
