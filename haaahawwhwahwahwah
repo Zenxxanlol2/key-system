@@ -866,6 +866,31 @@ local function predictTargetPositionGun(target)
 
     local targetChar = target.Character
     local myPos = localRoot.Position
+
+    local head = targetChar:FindFirstChild('Head')
+    local root = targetChar:FindFirstChild('HumanoidRootPart')
+    local humanoid = targetChar:FindFirstChildOfClass('Humanoid')
+    if not head then
+        return {
+            position = nil,
+            direction = nil,
+            timeToTarget = 0,
+            clientPosition = nil,
+            velocity = nil,
+        }
+    end
+
+    local aimPart = head
+    local velocity = Vector3.zero
+
+    if root then
+        velocity = root.Velocity
+    end
+
+    local ping = Players.LocalPlayer:GetAttribute('ServerPing') or 0.05
+    local predictionTime = GunSilent.Settings.BasePrediction.Value + ping
+    local predictedPos = aimPart.Position + velocity * predictionTime
+
     local hitPart = targetChar:FindFirstChild(GunSilent.Settings.HitPart.Value)
     if not hitPart then
         hitPart = targetChar:FindFirstChild('HumanoidRootPart')
@@ -894,15 +919,10 @@ local function predictTargetPositionGun(target)
     end
     GunSilent.State.LastTargetPosition[targetId] = targetPos
 
-    local velocity = targetRoot.Velocity
     local maxSpeedLimit = isInVehicle(targetChar) and 100 or 50
     if velocity.Magnitude > maxSpeedLimit then
         velocity = velocity.Unit * maxSpeedLimit
     end
-
-    local ping = Players.LocalPlayer:GetAttribute('ServerPing') or 0.05
-    local predictionTime = GunSilent.Settings.BasePrediction.Value + ping
-    local predictedPos = targetPos + velocity * predictionTime
 
     local ReplicatedStorage = game:GetService('ReplicatedStorage')
     local gunModule = require(game.ReplicatedStorage.Modules.Game.ItemTypes.Gun)
@@ -914,7 +934,7 @@ local function predictTargetPositionGun(target)
                 get = function()
                     return 1
                 end,
-            }, -- Max accuracy
+            },
         },
         random_object = Random.new(),
     }
