@@ -1260,6 +1260,33 @@ local Net = require(ReplicatedStorage.Modules.Core.Net)
 local oldCalc = ToolModule.calculate_bullet_direction
 local inHook = false
 
+function ResolveTargetPosition(target)
+    if not target.Character then
+        return nil
+    end
+
+    local head = target.Character:FindFirstChild('Head')
+    local root = target.Character:FindFirstChild('HumanoidRootPart')
+    local humanoid = target.Character:FindFirstChildOfClass('Humanoid')
+    if not head then
+        return nil
+    end
+
+    local aimPart = head
+    local velocity = Vector3.zero
+
+    if root then
+        velocity = root.Velocity
+    end
+
+    -- Apply prediction
+    local ping = Players.LocalPlayer:GetAttribute('ServerPing') or 0.05
+    local predictionTime = GunSilent.Settings.BasePrediction.Value + ping
+    local predictedPos = aimPart.Position + velocity * predictionTime
+
+    return predictedPos
+end
+
 ToolModule.calculate_bullet_direction = function(self, _)
     if inHook then
         return oldCalc(self, _)
@@ -1271,9 +1298,9 @@ ToolModule.calculate_bullet_direction = function(self, _)
     then
         inHook = true
         local target = GunSilent.Core.GunSilentTarget.CurrentTarget
-        local prediction = predictTargetPositionGun(target)
+        local prediction = ResolveTargetPosition(target)
 
-        if prediction and prediction.position then
+        if prediction then
             local barrelAttachment =
                 self.instance:FindFirstChild('BarrelAttachment', true)
             local origin = barrelAttachment
@@ -1281,7 +1308,7 @@ ToolModule.calculate_bullet_direction = function(self, _)
 
             if origin then
                 inHook = false
-                return (prediction.position - origin).Unit
+                return (prediction - origin).Unit
             end
         end
         inHook = false
