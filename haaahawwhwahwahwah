@@ -852,6 +852,111 @@ local function isInVehicle(targetChar)
     return false, nil
 end
 
+local RunService = game:GetService('RunService')
+local Players = game:GetService('Players')
+
+-- Improved Anti-Lock Resolver
+local antiLockConnection
+local Resolver = {}
+Resolver.LastPositions = {}
+Resolver.LastVelocities = {}
+
+local function toggleAntiLock(enabled)
+    if antiLockConnection then
+        antiLockConnection:Disconnect()
+        antiLockConnection = nil
+        Resolver.LastPositions = {}
+        Resolver.LastVelocities = {}
+    end
+
+    if enabled then
+        antiLockConnection = RunService.Heartbeat:Connect(function()
+            pcall(function()
+                local localPlayer = Players.LocalPlayer
+
+                for i, v in pairs(Players:GetPlayers()) do
+                    if v ~= localPlayer then
+                        local character = v.Character
+                        if
+                            character
+                            and character:FindFirstChild('HumanoidRootPart')
+                        then
+                            local hrp = character.HumanoidRootPart
+
+                            hrp.Velocity = Vector3.new(0, 0, 0)
+                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
+
+                            local currentPos = hrp.Position
+                            local lastPos = Resolver.LastPositions[v]
+
+                            if lastPos then
+                                local distance = (currentPos - lastPos).Magnitude
+                                if distance > 10 then
+                                    hrp.CFrame = CFrame.new(lastPos)
+                                else
+                                    Resolver.LastPositions[v] = currentPos
+                                end
+                            else
+                                Resolver.LastPositions[v] = currentPos
+                            end
+
+                            for _, child in pairs(hrp:GetChildren()) do
+                                if
+                                    child:IsA('BodyVelocity')
+                                    or child:IsA('BodyAngularVelocity')
+                                    or child:IsA('BodyForce')
+                                then
+                                    child:Destroy()
+                                end
+                            end
+
+                            if hrp:CanSetNetworkOwnership() then
+                                hrp:SetNetworkOwnershipAuto()
+                            end
+
+                            local velocity = (
+                                currentPos
+                                - (Resolver.LastPositions[v] or currentPos)
+                            )
+                                / RunService.Heartbeat:Wait()
+                            local mag = velocity.Magnitude
+
+                            if mag > 60 then
+                                local lastVel = Resolver.LastVelocities[v]
+                                    or Vector3.new(0, 0, 0)
+                                velocity =
+                                    lastVel:Lerp(velocity.Unit * 40, 0.25)
+                            end
+
+                            Resolver.LastVelocities[v] = velocity
+                        end
+                    end
+                end
+            end)
+        end)
+    end
+end
+
+function Resolver.GetResolvedPosition(target)
+    if not target or not target.Character then
+        return nil
+    end
+    local hrp = target.Character:FindFirstChild('HumanoidRootPart')
+    if not hrp then
+        return nil
+    end
+
+    return Resolver.LastPositions[target] or hrp.Position
+end
+
+function Resolver.GetResolvedVelocity(target)
+    if not target then
+        return Vector3.new(0, 0, 0)
+    end
+    return Resolver.LastVelocities[target] or Vector3.new(0, 0, 0)
+end
+
 local function predictTargetPositionGun(target)
     local localRoot = GunSilent.State.LocalRoot
     if not target or not target.Character or not localRoot then
@@ -881,15 +986,15 @@ local function predictTargetPositionGun(target)
     end
 
     local aimPart = head
-    local velocity = Vector3.zero
 
-    if root then
-        velocity = root.Velocity
-    end
+    local resolvedPosition = Resolver.GetResolvedPosition(target)
+    local resolvedVelocity = Resolver.GetResolvedVelocity(target)
 
+    local velocity = resolvedVelocity
     local ping = Players.LocalPlayer:GetAttribute('ServerPing') or 0.05
     local predictionTime = GunSilent.Settings.BasePrediction.Value + ping
-    local predictedPos = aimPart.Position + velocity * predictionTime
+
+    local predictedPos = resolvedPosition + velocity * predictionTime
 
     local hitPart = targetChar:FindFirstChild(GunSilent.Settings.HitPart.Value)
     if not hitPart then
@@ -1272,69 +1377,6 @@ local function updateVisualsGun(target)
     end
 
     updateTrajectoryBeam(startPos, predictionPos)
-end
-
-local RunService = game:GetService('RunService')
-local Players = game:GetService('Players')
-
-local antiLockConnection
-local lastPositions = {}
-
-local function toggleAntiLock(enabled)
-    if antiLockConnection then
-        antiLockConnection:Disconnect()
-        antiLockConnection = nil
-        lastPositions = {}
-    end
-
-    if enabled then
-        antiLockConnection = RunService.Heartbeat:Connect(function()
-            pcall(function()
-                local localPlayer = Players.LocalPlayer
-
-                for i, v in pairs(Players:GetPlayers()) do
-                    if v ~= localPlayer then
-                        local character = v.Character
-                        if
-                            character
-                            and character:FindFirstChild('HumanoidRootPart')
-                        then
-                            local hrp = character.HumanoidRootPart
-
-                            hrp.Velocity = Vector3.new(0, 0, 0)
-                            hrp.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
-                            hrp.AssemblyAngularVelocity = Vector3.new(0, 0, 0)
-                            local currentPos = hrp.Position
-                            local lastPos = lastPositions[v.Name]
-
-                            if lastPos then
-                                local distance = (currentPos - lastPos).Magnitude
-                                if distance > 10 then 
-                                    hrp.CFrame = CFrame.new(lastPos) -- Force back to last position
-                                else
-                                    lastPositions[v.Name] = currentPos
-                                end
-                            else
-                                lastPositions[v.Name] = currentPos
-                            end
-                            for _, child in pairs(hrp:GetChildren()) do
-                                if
-                                    child:IsA('BodyVelocity')
-                                    or child:IsA('BodyAngularVelocity')
-                                    or child:IsA('BodyForce')
-                                then
-                                    child:Destroy()
-                                end
-                            end
-                            if hrp:CanSetNetworkOwnership() then
-                                hrp:SetNetworkOwnershipAuto()
-                            end
-                        end
-                    end
-                end
-            end)
-        end)
-    end
 end
 
 local function initializeGunSilent()
