@@ -939,9 +939,11 @@ local function toggleAntiLock(enabled)
 end
 
 function Resolver.GetResolvedPosition(target)
-    if not target or not target.Character then
-        return nil
+    if not target or not target.Character or not GunSilent.Settings.AntiLockResolver.Value then
+        local hrp = target and target.Character and target.Character:FindFirstChild('HumanoidRootPart')
+        return hrp and hrp.Position or nil
     end
+    
     local hrp = target.Character:FindFirstChild('HumanoidRootPart')
     if not hrp then
         return nil
@@ -951,9 +953,11 @@ function Resolver.GetResolvedPosition(target)
 end
 
 function Resolver.GetResolvedVelocity(target)
-    if not target then
-        return Vector3.new(0, 0, 0)
+    if not target or not GunSilent.Settings.AntiLockResolver.Value then
+        local hrp = target and target.Character and target.Character:FindFirstChild('HumanoidRootPart')
+        return hrp and hrp.Velocity or Vector3.new(0, 0, 0)
     end
+    
     return Resolver.LastVelocities[target] or Vector3.new(0, 0, 0)
 end
 
