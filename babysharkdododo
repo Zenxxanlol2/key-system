@@ -119,9 +119,7 @@ function Nigger.Init(UI, Core, notify)
                             GunModule.class.hook(function(gunObj)
                                 gunObj.states.fire_rate.set(3000)
                                 gunObj.states.accuracy.set(100)
-                                gunObj.states.reload_time.set(0.1)
                                 gunObj.states.last_shot.set(-999999)
-                                gunObj.instance:SetAttribute('Recoil', 0)
                                 gunObj.states.automatic.set(true)
 
                                 local oldGet = gunObj.states.last_shot.get
